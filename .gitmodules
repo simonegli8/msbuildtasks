@@ -1,0 +1,3 @@
+[submodule "Source/MSBuild.Community.Tasks/WDSLToTypescriptProxyGenerator"]
+	path = Source/MSBuild.Community.Tasks/WDSLToTypescriptProxyGenerator
+	url = https://github.com/Azhaguthasan/WSDLToTypescriptProxyGenerator.git

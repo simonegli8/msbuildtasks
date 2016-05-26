@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MSBuild.Community.Tasks</RootNamespace>
     <AssemblyName>MSBuild.Community.Tasks.Custom</AssemblyName>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>MSBuild.Community.Tasks.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -47,6 +47,26 @@
     </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="MissingLinq.Linq2Management, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MissingLinq.Linq2Management.1.0.0.0\lib\net40\MissingLinq.Linq2Management.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.DirectoryServices" />
@@ -59,13 +79,18 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AddUsings.cs" />
     <Compile Include="AspNet\InstallAspNet.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attrib.cs" />
     <Compile Include="ByteDescriptions.cs" />
+    <Compile Include="ChangeNamespace.cs" />
     <Compile Include="Checksum\Checksum.cs" />
+    <Compile Include="CommentOut.cs" />
     <Compile Include="Computer\Computer.cs" />
     <Compile Include="Beep\Beep.cs" />
+    <Compile Include="ContentFilter.cs" />
+    <Compile Include="CustomReplace.cs" />
     <Compile Include="DeleteTree.cs" />
     <Compile Include="DependencyGraph\DependencyGraph.cs" />
     <Compile Include="DependencyGraph\ProjectFileParser.cs" />
@@ -112,6 +137,7 @@
     </Compile>
     <Compile Include="Fusion\InstallReference.cs" />
     <Compile Include="Fusion\NativeMethods.cs" />
+    <Compile Include="GenerateWebProxies.cs" />
     <Compile Include="Git\GitCommitDate.cs" />
     <Compile Include="Git\GitDescribe.cs" />
     <Compile Include="Git\GitBranch.cs" />
@@ -122,9 +148,21 @@
     <Compile Include="HtmlHelp\ChmCompiler.cs" />
     <Compile Include="HtmlHelp\HxCompiler.cs" />
     <Compile Include="InnoSetup.cs" />
+    <Compile Include="ItemFilter.cs" />
     <Compile Include="JavaScript\CssCompress.cs" />
     <Compile Include="JavaScript\CssCompressor.cs" />
     <Compile Include="Merge.cs" />
+    <Compile Include="Messages.cs" />
+    <Compile Include="Mks\MksAdd.cs" />
+    <Compile Include="Mks\MksCheckin.cs" />
+    <Compile Include="Mks\MksCheckpoint.cs" />
+    <Compile Include="Mks\MksCreateSandbox.cs" />
+    <Compile Include="Mks\MksDopSandbox.cs" />
+    <Compile Include="Mks\MksDrop.cs" />
+    <Compile Include="Mks\MksLock.cs" />
+    <Compile Include="Mks\MksMakeWritable.cs" />
+    <Compile Include="Mks\MksResync.cs" />
+    <Compile Include="Mks\MksUnlock.cs" />
     <Compile Include="Net\HttpRequest.cs" />
     <Compile Include="NuGet\NuGetBase.cs" />
     <Compile Include="NuGet\NuGetDelete.cs" />
@@ -135,7 +173,36 @@
     <Compile Include="NuGet\NuGetUpdate.cs" />
     <Compile Include="NUnit3.cs" />
     <Compile Include="PathUtil.cs" />
+    <Compile Include="Pdb2Mdb.cs" />
+    <Compile Include="Pdb2mdb\BitAccess.cs" />
+    <Compile Include="Pdb2mdb\BitSet.cs" />
+    <Compile Include="Pdb2mdb\CvInfo.cs" />
+    <Compile Include="Pdb2mdb\DataStream.cs" />
+    <Compile Include="Pdb2mdb\DbiDbgHdr.cs" />
+    <Compile Include="Pdb2mdb\DbiHeader.cs" />
+    <Compile Include="Pdb2mdb\DbiModuleInfo.cs" />
+    <Compile Include="Pdb2mdb\DbiSecCon.cs" />
+    <Compile Include="Pdb2mdb\Driver.cs" />
+    <Compile Include="Pdb2mdb\Interfaces.cs" />
+    <Compile Include="Pdb2mdb\IntHashTable.cs" />
+    <Compile Include="Pdb2mdb\MsfDirectory.cs" />
+    <Compile Include="Pdb2mdb\PdbConstant.cs" />
+    <Compile Include="Pdb2mdb\PdbDebugException.cs" />
+    <Compile Include="Pdb2mdb\PdbException.cs" />
+    <Compile Include="Pdb2mdb\PdbFile.cs" />
+    <Compile Include="Pdb2mdb\PdbFileHeader.cs" />
+    <Compile Include="Pdb2mdb\PdbFunction.cs" />
+    <Compile Include="Pdb2mdb\PdbLine.cs" />
+    <Compile Include="Pdb2mdb\PdbLines.cs" />
+    <Compile Include="Pdb2mdb\PdbReader.cs" />
+    <Compile Include="Pdb2mdb\PdbScope.cs" />
+    <Compile Include="Pdb2mdb\PdbSlot.cs" />
+    <Compile Include="Pdb2mdb\PdbSource.cs" />
+    <Compile Include="Pdb2mdb\PdbWriter.cs" />
+    <Compile Include="Pdb2mdb\SourceLocationProvider.cs" />
     <Compile Include="Regex\RegexCompiler.cs" />
+    <Compile Include="Rename.cs" />
+    <Compile Include="Replace.cs" />
     <Compile Include="Sandcastle\BuildAssembler.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -183,7 +250,11 @@
     <Compile Include="Tfs\InfoCommandResponse.cs" />
     <Compile Include="Tfs\TfsClient.cs" />
     <Compile Include="Services\Win32Registry.cs" />
+    <Compile Include="UpdateFilter.cs" />
     <Compile Include="User\User.cs" />
+    <Content Include="MSBuild.Community.Tasks.Custom.Targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="WebUpload.cs" />
     <Compile Include="Xml\XmlMassUpdate.cs" />
     <Compile Include="IIS\WebDirectoryScriptMap.cs" />
@@ -257,6 +328,7 @@
     <Compile Include="Zip.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Pdb2mdb\.gitattributes" />
     <None Include="MSBuild.Community.Tasks.snk" />
     <None Include="AdditionalDocumentation.xml" />
     <EmbeddedResource Include="Sandcastle\hana.config" />
@@ -270,6 +342,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
+    <None Include="Pdb2mdb\ChangeLog" />
+    <None Include="Pdb2mdb\LICENSE" />
+    <None Include="Pdb2mdb\Makefile" />
+    <None Include="Pdb2mdb\pdb2mdb.exe.sources" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
