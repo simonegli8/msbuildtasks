@@ -12,6 +12,7 @@ using System.Reflection;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Threading;
+using ProxyGenerator;
 using MissingLinq.Linq2Management.Context;
 using MissingLinq.Linq2Management.Model.CIMv2;
 
@@ -87,7 +88,7 @@ namespace MSBuild.Community.Tasks {
 
 		public enum Protocols { SOAP, SOAP12, HttpGet, HttpPost }
 		public enum Languages { CS, VB, JS, VJS, CPP, TypeScript }
-		public enum Types { Client, WseSoapClient, WseWebClient, Server, ServerInterface, WCFClient }
+		public enum Types { Client, WseSoapClient, WseWebClient, Server, ServerInterface, WCFClient, TypeScript }
 
 		public int Timeout { get; set; } = 60;
 
