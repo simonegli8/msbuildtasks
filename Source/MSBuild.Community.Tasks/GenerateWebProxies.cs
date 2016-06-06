@@ -12,7 +12,6 @@ using System.Reflection;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Threading;
-using ProxyGenerator;
 using MissingLinq.Linq2Management.Context;
 using MissingLinq.Linq2Management.Model.CIMv2;
 
@@ -44,7 +43,7 @@ namespace MSBuild.Community.Tasks {
 			public static void Start(int? port = null) {
 				Port = port ?? Port;
 				Process.Start(InvocationInfo);
-				Thread.Sleep(400);
+				Thread.Sleep(700);
 			}
 			public static void Stop(bool wait = false) {
 				var p = GetWin32Process();
@@ -360,7 +359,9 @@ public override bool Execute() {
 
 			var iisstarted = false;
 			var anyprocesses = false;
-	
+
+			System.Net.ServicePointManager.DefaultConnectionLimit = 9999;
+
 			System.Threading.Tasks.Parallel.For(0, Urls.Length, i => {
 				try {
 
