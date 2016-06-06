@@ -416,10 +416,12 @@ public override bool Execute() {
 					var sourceTime = sourceTimes[i];
 
 					if (src == null || !fileInfo.Exists || fileTime < projTime || fileTime < sourceTime) {
-						if (useIisExpress && !iisstarted) {
-							iisstarted = true;
-							if (IisExpress.IsStarted()) IisExpress.Stop();
-							IisExpress.Start(iisport);
+						lock (this) {
+							if (useIisExpress && !iisstarted) {
+								iisstarted = true;
+								if (IisExpress.IsStarted()) IisExpress.Stop();
+								IisExpress.Start(iisport);
+							}
 						}
 
 						var wsdlstart = new ProcessStartInfo(tool) {
