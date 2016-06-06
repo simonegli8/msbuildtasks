@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 using System.Reflection;
+using System.Net;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Threading;
@@ -314,20 +315,12 @@ public override bool Execute() {
 				IisExpress.SiteFolder = Path.GetFullPath(SourceProject).Trim('\\');
 				var serverUrl = "http://localhost:" + iisport.ToString() + "/";
 
-				if (!TypeScript) {
-					Urls = (Sources ?? (Sources = Directory.EnumerateFiles(SourceProject, WCF ? "*.svc" : "*.asmx", SearchOption.AllDirectories)
-						.Where(p => !(Exclude?.Any(x => x.ItemSpec == p) ?? false))
-						.Select(path => new TaskItem(path)).ToArray())
-						.Select(src => new TaskItem(serverUrl + src.ItemSpec.Substring(SourceProject.Length).Trim('\\', '/', ' ').Replace('\\', '/') /*+ (WCF ? "?wsdl" : "") */))
-						.ToArray());
-				} else {
-					Urls = (Sources ?? (Sources = Directory.EnumerateFiles(SourceProject, "*.svc", SearchOption.AllDirectories)
-						.Concat(Directory.EnumerateFiles(SourceProject, "*.asmx", SearchOption.AllDirectories))
-						.Where(p => !(Exclude?.Any(x => x.ItemSpec == p) ?? false))
-						.Select(path => new TaskItem(path)).ToArray())
-						.Select(src => new TaskItem(serverUrl + src.ItemSpec.Substring(SourceProject.Length).Trim('\\', '/', ' ').Replace('\\', '/') /*+ (WCF ? "?wsdl" : "") */))
-						.ToArray());
-				}
+				Sources = Sources ?? Directory.EnumerateFiles(SourceProject, WCF ? "*.svc" : "*.asmx", SearchOption.AllDirectories)
+					  .Where(p => !(Exclude?.Any(x => x.ItemSpec == p) ?? false))
+					  .Select(path => new TaskItem(path)).ToArray();
+
+				Urls = Sources.Select(src => new TaskItem(serverUrl + src.ItemSpec.Substring(SourceProject.Length).Trim('\\', '/', ' ').Replace('\\', '/') /*+ (WCF ? "?wsdl" : "") */))
+					.ToArray();
 				var files = Sources.Select(src => new TaskItem(Path.ChangeExtension(src.ItemSpec.Substring(SourceProject.Length), (FileSuffix ?? Type.ToString()) + "." + Language.ToString().ToLower())))
 					.ToDictionary(src => src.ItemSpec);
 				if (Files == null) Files = files.Values.ToArray();
@@ -361,6 +354,8 @@ public override bool Execute() {
 			var anyprocesses = false;
 
 			System.Net.ServicePointManager.DefaultConnectionLimit = 9999;
+
+			var serverError = false;
 
 			System.Threading.Tasks.Parallel.For(0, Urls.Length, i => {
 				try {
@@ -421,8 +416,16 @@ public override bool Execute() {
 								iisstarted = true;
 								if (IisExpress.IsStarted()) IisExpress.Stop();
 								IisExpress.Start(iisport);
+								var web = new WebClient();
+								try {
+									serverError = (web.DownloadString(url) == null);
+								} catch {
+									serverError = true;
+								}
 							}
 						}
+
+						if (serverError) return;
 
 						var wsdlstart = new ProcessStartInfo(tool) {
 							UseShellExecute = false,
