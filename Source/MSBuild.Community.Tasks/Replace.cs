@@ -193,6 +193,8 @@ namespace MSBuild.Community.Tasks {
 			return regexOptions;
 		}
 
+		public virtual bool ShowProgress { get; set; }
+
 		#endregion
 
 		#region Output Properties
@@ -253,7 +255,7 @@ namespace MSBuild.Community.Tasks {
 							var regex = new Regex(repl.Expression, repl.Options);
 							text = scope.Replace(text, match => {
 								any = true;
-								if (match.Groups["scope"] != null) {
+								if (match.Groups["scope"] != null && match.Groups["scope"].Success == true) {
 									var s = match.Groups["scope"];
 									return match.Result(match.Value.Substring(0, s.Index-match.Index) + regex.Replace(s.Value, repl.Replacement ?? "", repl.Count) + match.Value.Substring(s.Index+s.Length-match.Index));
 								} else {
@@ -277,12 +279,14 @@ namespace MSBuild.Community.Tasks {
 						if (_warnOnNoUpdate) {
 							Log.LogWarning(String.Format("No updates were performed on file : {0}.", file));
 						}
-					}
-
-					if (_useDefaultEncoding) {
-						File.WriteAllText(file, text);
 					} else {
-						File.WriteAllText(file, text, _encoding);
+						if (ShowProgress) Log.LogMessage("Replace on {0}", file);
+
+						if (_useDefaultEncoding) {
+							File.WriteAllText(file, text);
+						} else {
+							File.WriteAllText(file, text, _encoding);
+						}
 					}
 					//});
 				}

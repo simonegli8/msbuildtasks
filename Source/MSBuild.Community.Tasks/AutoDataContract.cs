@@ -13,13 +13,17 @@ namespace MSBuild.Community.Tasks {
 		static Dictionary<string, DateTime> Stamps;
 
 		protected override IEnumerable<Replacing> GetReplacings(ITaskItem item, string text) {
-			yield return new Replacing { Count = -1, Expression = @"\[\s*AutoDataContract\s*\]", Replacement="[DataContract, AutoDataContract]" };
+			yield return new Replacing { Count = -1, Expression = @"\[(?<begin>[^\]]*)(?<!DataContract,\s*)AutoDataContract(?<end>[^\]]*)\]", Replacement="[${begin}DataContract, AutoDataContract${end}]" };
 			yield return new Replacing {
-				ScopeCount = -1, Scope=@"\[\s*(?:DataContract\s*,\s*)?AutoDataContract\s*\]\s+(?:public\s+)?(?:partial\s+)?(?:class|interface|struct)\s+[a-zA-Z0-9_]+\s+(:\s+[a-zA-Z0-9_., \t\r\n]+)?{(?:[^}]*}(?!((?:(\s+)|(//[^\r\n]*)|(/\*.*?\*/))*)(?:public\s+)?(?:partial\s+)?(?:class|interface|struct)))*",
-				Count = -1, Expression = @"(?<!\[.*?(?:DataMember|IgnoreMember).*?\]\s*)(?<prop>(?<ident>[ \t]+)public\s+(virtual\s+)?[a-zA-Z0-9_.\[\]\<\>\?]+\s+[a-zA-Z0-9_]+\s*{\s*get\s*(?:;|(?:{[^}]*))}\s*set\s*(?:;|(?:{[^}]*))}\s*})",
+				ScopeCount = -1, Scope=@"\[\s*(?:DataContract\s*,\s*)?AutoDataContract\s*\]\s+(?:public\s+)?(?:partial\s+)?(?:class|interface|struct)\s+[a-zA-Z0-9_<>,]+\s+(:\s+[a-zA-Z0-9_.<>?, \t\r\n]+)?{(?:[^}]*}(?![^{}]*(?:public\s+)?(?:partial\s+)?(?:class|interface|struct)))*",
+				Count = -1, Expression = @"(?<!\[.*?(?:DataMember|IgnoreMember|XmlIgnore).*?\]\s*(?:\[[^\]]*\]\s*)*)(?<prop>(?<ident>[ \t]+)public\s+(virtual\s+)?[a-zA-Z0-9_.\[\]\<\>\?,]+\s+[a-zA-Z0-9_]+\s*{\s*(?:(?:get|set)\s*(?:;|(?:{[^}]*}))\s*)+})",
 				Replacement = "${ident}[DataMember]\r\n${prop}"
 			};
 		}
+
+		/*public override bool ShowProgress {
+			get { return true; } set { base.ShowProgress = true; }
+		}*/
 
 		public override bool Execute() {
 			var f = new BinaryFormatter();
