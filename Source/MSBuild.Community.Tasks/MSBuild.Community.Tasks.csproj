@@ -108,6 +108,7 @@
     <Compile Include="AspNet\InstallAspNet.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attrib.cs" />
+    <Compile Include="ChangeBrand.cs" />
     <Compile Include="AutoDataContract.cs" />
     <Compile Include="ByteDescriptions.cs" />
     <Compile Include="ChangeNamespace.cs" />

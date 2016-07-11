@@ -266,8 +266,13 @@ namespace MSBuild.Community.Tasks {
 			}
 		}
 
-		bool Terminated(Process p,  ProcessCollection infos) {
-			if (!p.HasExited) return false;
+		bool Terminated(Process p,  ProcessCollection infos, bool wait = false) {
+			Exception ex = null;
+			try {
+				if (!p.HasExited && !wait) return false;
+			} catch {
+				if (!wait) return false;
+			}
 
 			p.WaitForExit();
 
@@ -295,7 +300,7 @@ namespace MSBuild.Community.Tasks {
 			return true;
 		}
 
-public override bool Execute() {
+		public override bool Execute() {
 			if (System.Type.GetType("Mono.Runtime") != null) { // Don't execute under Mono.
 				Log.LogMessage(MessageImportance.High, "The GenerateWebProxies task doesn't run under Mono.");
 				return true;
@@ -358,6 +363,7 @@ public override bool Execute() {
 			var serverError = false;
 
 			System.Threading.Tasks.Parallel.For(0, Urls.Length, i => {
+				//for (int i = 0; i < Urls.Length; i++) {
 				try {
 
 					var meta = Files[i].GetMetadata(Meta);
@@ -369,7 +375,7 @@ public override bool Execute() {
 					var ns = Files[i].GetMetadata("Namespace");
 					if (string.IsNullOrEmpty(ns)) ns = Namespace;
 					var config = Config != null ? $"/config:{Config} /mergeConfig " : "";
-					var serializer = Serializer != null ? $"/serializer:{Serializer} ": "";
+					var serializer = Serializer != null ? $"/serializer:{Serializer} " : "";
 					var useSerializerForFaults = Serializer != null && UseSerializerForFaults ? $"/useSerializerForFaults " : "";
 					var async = Async ? "/async " : "/syncOnly ";
 					string reference = "";
@@ -403,7 +409,7 @@ public override bool Execute() {
 					var mergeConfig = MergeConfig ? "/mergeConfig " : "";
 					var noConfig = NoConfig ? "/noConfig " : "";
 					var noStdLib = NoStdLib ? "/noStdLib " : "";
-				 
+
 					var arg = WCF ? $"/t:code /out:{file} /namespace:{ns} /language:{Language} {config}{serializer}{useSerializerForFaults}{async}{targetVersion}{importXmlTypes}{reference}{dataContractOnly}{serviceContract}{enableDataBinding}{excludeType}{_internal}{mergeConfig}{noConfig}{noStdLib}{url}" :
 						$"/out:{file} /namespace:{ns} /language:{Language} /protocol:{Protocol}" + (WSE ? " /type:" + (type == Types.WseSoapClient ? "soapClient" : "webClient") : (type == Types.Client ? "" : (type == Types.Server ? " /server" : " /serverInterface"))) + (Sharetypes ? " /sharetypes" : "") + " " + url;
 					var fileInfo = new FileInfo(file);
@@ -439,11 +445,11 @@ public override bool Execute() {
 						p.StartInfo = wsdlstart;
 						p.EnableRaisingEvents = true;
 						p.Exited += (sender, a) => {
-							var any = !Terminated(p, processes);
+							var any = !Terminated(p, processes, false);
 							ProcessInfo[] infos;
 							lock (processes) infos = processes.ToArray();
 							foreach (var info in infos) {
-								any |= !Terminated(info.Process, processes);
+								any |= !Terminated(info.Process, processes, false);
 							}
 							if (!any) wait.Set();
 						};
@@ -457,16 +463,14 @@ public override bool Execute() {
 				}
 			});
 
-			
 			//foreach (var p in processes.ToArray()) p.Start();
-
 
 			if (anyprocesses && !wait.WaitOne(Timeout*1000)) {
 				ProcessInfo[] infos;
 				lock (processes) infos = processes.ToArray();
 				foreach (var info in infos) {
 					if (!info.Process.HasExited) info.Process.Kill();
-					Terminated(info.Process, processes);
+					Terminated(info.Process, processes, true);
 				}
 			}
 
