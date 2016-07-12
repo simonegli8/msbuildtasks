@@ -15,6 +15,8 @@ using Microsoft.Build.Framework;
 using System.Threading;
 using MissingLinq.Linq2Management.Context;
 using MissingLinq.Linq2Management.Model.CIMv2;
+using RestSharp;
+using Ionic.Zip;
 
 namespace MSBuild.Community.Tasks {
 
@@ -41,12 +43,22 @@ namespace MSBuild.Community.Tasks {
 			static readonly string IISPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"IIS Express\iisexpress.exe");
 			#endregion
 
+
 			public static void Start(int? port = null) {
 				Port = port ?? Port;
 				Process.Start(InvocationInfo);
+				stopped = false;
+				isStarted = true;
+				AppDomain.CurrentDomain.DomainUnload += (sender, args) => Stop();
+				AppDomain.CurrentDomain.ProcessExit += (sender, args) => Stop();
 				Thread.Sleep(700);
 			}
+
+			static bool stopped = false;
 			public static void Stop(bool wait = false) {
+				if (stopped) return;
+				stopped = true;
+				isStarted = false;
 				var p = GetWin32Process();
 				if (p == null) return;
 
@@ -56,9 +68,14 @@ namespace MSBuild.Community.Tasks {
 				pp.Kill();
 				if (wait) pp.WaitForExit(ProcessStateChangeDelay);
 			}
-			public static bool IsStarted() {
-				var p = GetWin32Process();
-				return p != null;
+
+			static bool isStarted = false;
+			public static bool IsStarted {
+				get {
+					if (isStarted) return true;
+					var p = GetWin32Process();
+					return p != null;
+				}
 			}
 
 			static readonly string ProcessName = Path.GetFileName(IISPath);
@@ -88,11 +105,12 @@ namespace MSBuild.Community.Tasks {
 
 		public enum Protocols { SOAP, SOAP12, HttpGet, HttpPost }
 		public enum Languages { CS, VB, JS, VJS, CPP, TypeScript }
-		public enum Types { Client, WseSoapClient, WseWebClient, Server, ServerInterface, WCFClient, TypeScript }
+		public enum Types { Client, WseSoapClient, WseWebClient, Server, ServerInterface, WCFClient, AutoRest, Swagger }
 
 		public int Timeout { get; set; } = 60;
 
 		const string WseWsdl3Tool = @"Lib\Microsoft WSE\v3.0\Tools\WseWsdl3.exe";
+		const string AutoRestTool = @"Lib\AutoRest\AutoRest.exe";
 		const string WsdlTool = @"wsdl.exe";
 		const string WcfTool = "svcutil.exe";
 		static readonly string SDKPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows");
@@ -111,7 +129,7 @@ namespace MSBuild.Community.Tasks {
 
 		public string Namespace { get; set; } = "ServiceProxies";
 
-		public string Language { get; set; } = Languages.CS.ToString();
+		public string Language { get; set; } = null;
 
 		public string Protocol { get; set; } = Protocols.SOAP.ToString();
 
@@ -151,17 +169,39 @@ namespace MSBuild.Community.Tasks {
 		public bool EnableDataBinding { get; set; } = false;
 		public string ExcludeType { get; set; } = null;
 
+		// AutoRest
+		public string ApiVersion { get; set; } = "v1";
+		public string OutputDirectory { get; set; } = null;
+		public string CodeGenerator { get; set; } = "NodeJS";
+		public string Modeler { get; set; } = null;
+		public string ClientName { get; set; } = null;
+		public string PayloadFlatteningTreshold { get; set; } = null;
+		public string Header { get; set; } = null;
+		public string AddCredentials { get; set; } = null;
+		public string OutputFileName { get; set; } = null;
+		public bool Verbose { get; set; } = false;
+		public string CodeGenSettings { get; set; } = null;
+
+		// Swagger
+		public string SwaggerUrl { get; set; } = null;
+		public string Options { get; set; } = null;
+		public string Authorization { get; set; } = null;
+		public string Security { get; set; } = null;
+
+
 		Types type => (Types)Enum.Parse(typeof(Types), Type);
-		Languages language => (Languages)Enum.Parse(typeof(Languages), Language);
+		Languages language => (Languages)Enum.Parse(typeof(Languages), Language ?? Languages.CS.ToString());
 
 		bool WSE => type == Types.WseSoapClient || type == Types.WseWebClient;
 		bool WCF => type == Types.WCFClient;
+		bool AutoRest => type == Types.AutoRest;
+		bool Swagger => type == Types.Swagger;
 		bool TypeScript => language == Languages.TypeScript;
 
 		public string LanguageSuffix {
 			get {
 				if (language == Languages.TypeScript) return ".ts";
-				else return "." + Language.ToLower();
+				else return "." + (Language ?? Languages.CS.ToString()).ToLower();
 			}
 		}
 
@@ -187,6 +227,7 @@ namespace MSBuild.Community.Tasks {
 		public string ToolExe {
 			get {
 				if (WSE) return Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), WseWsdl3Tool);
+				if (AutoRest) return Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), AutoRestTool);
 				string tool;
 				if (WCF) tool = WcfTool;
 				else tool = WsdlTool;
@@ -266,7 +307,7 @@ namespace MSBuild.Community.Tasks {
 			}
 		}
 
-		bool Terminated(Process p,  ProcessCollection infos, bool wait = false) {
+		bool Terminated(Process p, ProcessCollection infos, bool wait = false) {
 			Exception ex = null;
 			try {
 				if (!p.HasExited && !wait) return false;
@@ -316,39 +357,50 @@ namespace MSBuild.Community.Tasks {
 
 			var iisport = IisExpress.RandomPort;
 			var useIisExpress = Urls == null;
-			if (Urls == null) {
-				IisExpress.SiteFolder = Path.GetFullPath(SourceProject).Trim('\\');
-				var serverUrl = "http://localhost:" + iisport.ToString() + "/";
+			var newiis = false;
 
-				Sources = Sources ?? Directory.EnumerateFiles(SourceProject, WCF ? "*.svc" : "*.asmx", SearchOption.AllDirectories)
+			if (Urls == null || AutoRest || Swagger) {
+				var site = Path.GetFullPath(SourceProject).Trim('\\');
+				newiis = IisExpress.SiteFolder != site || !IisExpress.IsStarted;
+				if (newiis) IisExpress.SiteFolder = site;
+			}
+
+			if (!newiis) iisport = IisExpress.Port.Value;
+
+			var ServerUrl = "http://localhost:" + iisport.ToString() + "/";
+
+			if (Urls == null) {
+
+				if (!AutoRest && !Swagger) {
+					Sources = Sources ?? Directory.EnumerateFiles(SourceProject, WCF ? "*.svc" : "*.asmx", SearchOption.AllDirectories)
 					  .Where(p => !(Exclude?.Any(x => x.ItemSpec == p) ?? false))
 					  .Select(path => new TaskItem(path)).ToArray();
 
-				Urls = Sources.Select(src => new TaskItem(serverUrl + src.ItemSpec.Substring(SourceProject.Length).Trim('\\', '/', ' ').Replace('\\', '/') /*+ (WCF ? "?wsdl" : "") */))
-					.ToArray();
-				var files = Sources.Select(src => new TaskItem(Path.ChangeExtension(src.ItemSpec.Substring(SourceProject.Length), (FileSuffix ?? Type.ToString()) + "." + Language.ToString().ToLower())))
-					.ToDictionary(src => src.ItemSpec);
-				if (Files == null) Files = files.Values.ToArray();
-				else {
-					var items = Files.ToDictionary(f => f.ItemSpec);
-					Files = files.Values.Select(f => items.ContainsKey(f.ItemSpec) ? items[f.ItemSpec] : f).ToArray();
-				}
-				var regex = new Regex(@"<%@ (?:WebService|ServiceHost).*?(?:CodeBehind|CodeFile)\s*=\s*(?:(?:""(?<code>[^""]*)"")|(?:'(?<code>[^']*)')).*?%>");
-				sourceTimes = Sources.Select(src => { // get times of svc or asmx C# source files
-					var sourceInfo = new FileInfo(src.ItemSpec);
-					if (sourceInfo.Exists) {
-						var m = regex.Match(File.ReadAllText(src.ItemSpec));
-						var t = sourceInfo.LastWriteTimeUtc;
-						if (m.Success) {
-							var codeInfo = new FileInfo(Path.Combine(Path.GetDirectoryName(src.ItemSpec), m.Groups["code"].Value));
-							var codet = codeInfo.Exists ? codeInfo.LastWriteTimeUtc : DateTime.MinValue;
-							return codet > t ? codet : t;
-						}
+					Urls = Sources.Select(src => new TaskItem(ServerUrl + src.ItemSpec.Substring(SourceProject.Length).Trim('\\', '/', ' ').Replace('\\', '/') /*+ (WCF ? "?wsdl" : "") */))
+						.ToArray();
+					var files = Sources.Select(src => new TaskItem(Path.ChangeExtension(src.ItemSpec.Substring(SourceProject.Length), (FileSuffix ?? Type.ToString()) + "." + Language.ToLower())))
+						.ToDictionary(src => src.ItemSpec);
+					if (Files == null) Files = files.Values.ToArray();
+					else {
+						var items = Files.ToDictionary(f => f.ItemSpec);
+						Files = files.Values.Select(f => items.ContainsKey(f.ItemSpec) ? items[f.ItemSpec] : f).ToArray();
 					}
-					return DateTime.MinValue;
-				}).ToArray();
+					var regex = new Regex(@"<%@ (?:WebService|ServiceHost).*?(?:CodeBehind|CodeFile)\s*=\s*(?:(?:""(?<code>[^""]*)"")|(?:'(?<code>[^']*)')).*?%>");
+					sourceTimes = Sources.Select(src => { // get times of svc or asmx C# source files
+						var sourceInfo = new FileInfo(src.ItemSpec);
+						if (sourceInfo.Exists) {
+							var m = regex.Match(File.ReadAllText(src.ItemSpec));
+							var t = sourceInfo.LastWriteTimeUtc;
+							if (m.Success) {
+								var codeInfo = new FileInfo(Path.Combine(Path.GetDirectoryName(src.ItemSpec), m.Groups["code"].Value));
+								var codet = codeInfo.Exists ? codeInfo.LastWriteTimeUtc : DateTime.MinValue;
+								return codet > t ? codet : t;
+							}
+						}
+						return DateTime.MinValue;
+					}).ToArray();
+				}
 			}
-
 			var output = new List<TaskItem>();
 			var processes = new ProcessCollection();
 			var startTime = DateTime.UtcNow;
@@ -362,119 +414,207 @@ namespace MSBuild.Community.Tasks {
 
 			var serverError = false;
 
-			System.Threading.Tasks.Parallel.For(0, Urls.Length, i => {
-				//for (int i = 0; i < Urls.Length; i++) {
-				try {
+			if (!AutoRest && !Swagger) {
+				System.Threading.Tasks.Parallel.For(0, Urls.Length, i => {
+					//for (int i = 0; i < Urls.Length; i++) {
+					try {
 
-					var meta = Files[i].GetMetadata(Meta);
-					if (!string.IsNullOrEmpty(Meta) && !string.IsNullOrEmpty(meta) && meta != "false") return;
+						var meta = Files[i].GetMetadata(Meta);
+						if (!string.IsNullOrEmpty(Meta) && !string.IsNullOrEmpty(meta) && meta != "false") return;
 
-					var url = Urls[i].ItemSpec;
-					var file = Files[i].ItemSpec;
-					var src = Sources?[i].ItemSpec;
-					var ns = Files[i].GetMetadata("Namespace");
-					if (string.IsNullOrEmpty(ns)) ns = Namespace;
-					var config = Config != null ? $"/config:{Config} /mergeConfig " : "";
-					var serializer = Serializer != null ? $"/serializer:{Serializer} " : "";
-					var useSerializerForFaults = Serializer != null && UseSerializerForFaults ? $"/useSerializerForFaults " : "";
-					var async = Async ? "/async " : "/syncOnly ";
-					string reference = "";
-					if (Reference != null) {
-						var refs = Reference.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
-						var str = new StringBuilder();
-						foreach (var r in refs) {
-							str.Append("\"/r:");
-							str.Append(Path.GetFullPath(r));
-							str.Append("\" ");
+						var url = Urls[i].ItemSpec;
+						var file = Files[i].ItemSpec;
+						var src = Sources?[i].ItemSpec;
+						var ns = Files[i].GetMetadata("Namespace");
+						if (string.IsNullOrEmpty(ns)) ns = Namespace;
+						var config = Config != null ? $"/config:{Config} /mergeConfig " : "";
+						var serializer = Serializer != null ? $"/serializer:{Serializer} " : "";
+						var useSerializerForFaults = Serializer != null && UseSerializerForFaults ? $"/useSerializerForFaults " : "";
+						var async = Async ? "/async " : "/syncOnly ";
+						string reference = "";
+						if (Reference != null) {
+							var refs = Reference.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
+							var str = new StringBuilder();
+							foreach (var r in refs) {
+								str.Append("\"/r:");
+								str.Append(Path.GetFullPath(r));
+								str.Append("\" ");
+							}
+							reference = str.ToString();
 						}
-						reference = str.ToString();
-					}
-					var targetVersion = TargetClientVersion != null ? $"/targetClientVersion:{TargetClientVersion} " : "";
-					var importXmlTypes = ImportXmlTypes ? "/importXmlTypes " : "";
-					var dataContractOnly = DataContractOnly ? "/dataContractOnly " : "";
-					var serviceContract = ServiceContract ? "/serviceContract " : "";
-					var enableDataBinding = EnableDataBinding ? "/enableDataBinding " : "";
-					string excludeType = "";
-					if (ExcludeType != null) {
-						var types = ExcludeType.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
-						var str = new StringBuilder();
-						foreach (var t in types) {
-							str.Append("\"/et:");
-							str.Append(Path.GetFullPath(t));
-							str.Append("\" ");
+						var targetVersion = TargetClientVersion != null ? $"/targetClientVersion:{TargetClientVersion} " : "";
+						var importXmlTypes = ImportXmlTypes ? "/importXmlTypes " : "";
+						var dataContractOnly = DataContractOnly ? "/dataContractOnly " : "";
+						var serviceContract = ServiceContract ? "/serviceContract " : "";
+						var enableDataBinding = EnableDataBinding ? "/enableDataBinding " : "";
+						string excludeType = "";
+						if (ExcludeType != null) {
+							var types = ExcludeType.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
+							var str = new StringBuilder();
+							foreach (var t in types) {
+								str.Append("\"/et:");
+								str.Append(Path.GetFullPath(t));
+								str.Append("\" ");
+							}
+							excludeType = str.ToString();
 						}
-						excludeType = str.ToString();
-					}
-					var _internal = Internal ? "/internal " : "";
-					var mergeConfig = MergeConfig ? "/mergeConfig " : "";
-					var noConfig = NoConfig ? "/noConfig " : "";
-					var noStdLib = NoStdLib ? "/noStdLib " : "";
+						var _internal = Internal ? "/internal " : "";
+						var mergeConfig = MergeConfig ? "/mergeConfig " : "";
+						var noConfig = NoConfig ? "/noConfig " : "";
+						var noStdLib = NoStdLib ? "/noStdLib " : "";
 
-					var arg = WCF ? $"/t:code /out:{file} /namespace:{ns} /language:{Language} {config}{serializer}{useSerializerForFaults}{async}{targetVersion}{importXmlTypes}{reference}{dataContractOnly}{serviceContract}{enableDataBinding}{excludeType}{_internal}{mergeConfig}{noConfig}{noStdLib}{url}" :
-						$"/out:{file} /namespace:{ns} /language:{Language} /protocol:{Protocol}" + (WSE ? " /type:" + (type == Types.WseSoapClient ? "soapClient" : "webClient") : (type == Types.Client ? "" : (type == Types.Server ? " /server" : " /serverInterface"))) + (Sharetypes ? " /sharetypes" : "") + " " + url;
-					var fileInfo = new FileInfo(file);
-					var fileTime = fileInfo.LastWriteTimeUtc;
-					var sourceTime = sourceTimes[i];
+						var arg = WCF ? $"/t:code /out:{file} /namespace:{ns} /language:{Language} {config}{serializer}{useSerializerForFaults}{async}{targetVersion}{importXmlTypes}{reference}{dataContractOnly}{serviceContract}{enableDataBinding}{excludeType}{_internal}{mergeConfig}{noConfig}{noStdLib}{url}" :
+							$"/out:{file} /namespace:{ns} /language:{Language} /protocol:{Protocol}" + (WSE ? " /type:" + (type == Types.WseSoapClient ? "soapClient" : "webClient") : (type == Types.Client ? "" : (type == Types.Server ? " /server" : " /serverInterface"))) + (Sharetypes ? " /sharetypes" : "") + " " + url;
+						var fileInfo = new FileInfo(file);
+						var fileTime = fileInfo.LastWriteTimeUtc;
+						var sourceTime = sourceTimes[i];
 
-					if (src == null || !fileInfo.Exists || fileTime < projTime || fileTime < sourceTime) {
-						lock (this) {
-							if (useIisExpress && !iisstarted) {
-								iisstarted = true;
-								if (IisExpress.IsStarted()) IisExpress.Stop();
-								IisExpress.Start(iisport);
-								var web = new WebClient();
-								try {
-									serverError = (web.DownloadString(url) == null);
-								} catch {
-									serverError = true;
+						if (src == null || !fileInfo.Exists || fileTime < projTime || fileTime < sourceTime) {
+							lock (this) {
+								if (useIisExpress && !iisstarted) {
+									iisstarted = true;
+									if (newiis) {
+										IisExpress.Stop();
+										IisExpress.Start(iisport);
+										var web = new WebClient();
+										try {
+											serverError = (web.DownloadString(url) == null);
+										} catch {
+											serverError = true;
+										}
+									}
 								}
 							}
-						}
 
-						if (serverError) return;
-
-						var wsdlstart = new ProcessStartInfo(tool) {
-							UseShellExecute = false,
-							WorkingDirectory = Environment.CurrentDirectory,
-							CreateNoWindow = true,
-							WindowStyle = ProcessWindowStyle.Hidden,
-							RedirectStandardOutput = true,
-							Arguments = arg
-						};
-						var p = new Process();
-						p.StartInfo = wsdlstart;
-						p.EnableRaisingEvents = true;
-						p.Exited += (sender, a) => {
-							var any = !Terminated(p, processes, false);
-							ProcessInfo[] infos;
-							lock (processes) infos = processes.ToArray();
-							foreach (var info in infos) {
-								any |= !Terminated(info.Process, processes, false);
+							if (serverError) {
+								Log.LogError("Server still has errors.");
+								return;
 							}
-							if (!any) wait.Set();
-						};
-						lock (processes) processes.Add(new ProcessInfo { Process = p, File = file, Url = url, Args = arg });
-						lock (output) output.Add(new TaskItem(Files[i]));
-						anyprocesses = true;
-						p.Start();
+
+							var wsdlstart = new ProcessStartInfo(tool) {
+								UseShellExecute = false,
+								WorkingDirectory = Environment.CurrentDirectory,
+								CreateNoWindow = true,
+								WindowStyle = ProcessWindowStyle.Hidden,
+								RedirectStandardOutput = true,
+								Arguments = arg
+							};
+							var p = new Process();
+							p.StartInfo = wsdlstart;
+							p.EnableRaisingEvents = true;
+							p.Exited += (sender, a) => {
+								var any = !Terminated(p, processes, false);
+								ProcessInfo[] infos;
+								lock (processes) infos = processes.ToArray();
+								foreach (var info in infos) {
+									any |= !Terminated(info.Process, processes, false);
+								}
+								if (!any) wait.Set();
+							};
+							lock (processes) processes.Add(new ProcessInfo { Process = p, File = file, Url = url, Args = arg });
+							lock (output) output.Add(new TaskItem(Files[i]));
+							anyprocesses = true;
+							p.Start();
+						}
+					} catch (Exception ex) {
+						Log.LogErrorFromException(ex);
 					}
-				} catch (Exception ex) {
-					Log.LogErrorFromException(ex);
+				});
+
+				//foreach (var p in processes.ToArray()) p.Start();
+
+				if (anyprocesses && !wait.WaitOne(Timeout*1000)) {
+					ProcessInfo[] infos;
+					lock (processes) infos = processes.ToArray();
+					foreach (var info in infos) {
+						if (!info.Process.HasExited) info.Process.Kill();
+						Terminated(info.Process, processes, true);
+					}
 				}
-			});
+			} else {
+				var swaggerdocsurl = SwaggerUrl ?? (ServerUrl + "/swagger/docs/" + (ApiVersion ?? "v1"));
+				serverError = false;
+				if (AutoRest || SwaggerUrl == null) {
+					if (newiis) {
+						IisExpress.Stop();
+						IisExpress.Start(iisport);
+						iisstarted = true;
+						var web = new WebClient();
+						try {
+							serverError = (web.DownloadString(ServerUrl) == null);
+						} catch {
+							serverError = true;
+						}
+						if (serverError) {
+							Log.LogError($"Server still has errors: {ServerUrl}.");
+							return false;
+						}
+					}
+				}
+				var swaggerjson = new WebClient().DownloadString(swaggerdocsurl);
+				var jsonfile = Path.Combine(OutputDirectory, "swagger.json");
+				if (!File.Exists(jsonfile) || File.ReadAllText(jsonfile) != swaggerjson) {
+					if (Directory.Exists(OutputDirectory)) Directory.Delete(OutputDirectory, true);
+					Directory.CreateDirectory(OutputDirectory);
+					File.WriteAllText(jsonfile, swaggerjson);
+					if (AutoRest) {
+						// AutoRest
+						var outdir = OutputDirectory != null ? $"-OutputDirectory \"{OutputDirectory}\" " : "";
+						var codegen = CodeGenerator != null ? $"-CodeGenerator {CodeGenerator} " : "";
+						var modeler = Modeler != null ? $"-Modeler {Modeler} " : "";
+						var clientname = ClientName != null ? $"-ClientName {ClientName} " : "";
+						var payloadthrs = PayloadFlatteningTreshold != null ? $"-PayloadFlatteningThreshold {PayloadFlatteningTreshold} " : "";
+						var header = Header != null ? $"-Header \"{Header}\" " : "";
+						var credentials = AddCredentials != null ? $"-AddCredentials {AddCredentials} " : "";
+						var outfile = OutputFileName != null ? $"-OutputFileName \"{OutputFileName}\" " : "";
+						var verbose = Verbose ? $"-Verbose " : "";
+						var settings = CodeGenSettings != null ? $"-CodeGenSettings \"{CodeGenSettings}\"" : "";
 
-			//foreach (var p in processes.ToArray()) p.Start();
+						var args = $"{outdir}{codegen}{modeler}{clientname}{payloadthrs}{header}{credentials}{outfile}{verbose}{settings}".Trim();
+						Process.Start(ToolExe, args);
+					} else if (Swagger) {
+						try {
+							var codegenurl = "http://generator.swagger.io/api/gen/clients/" + (Language ?? "typescript-angular2");
+							var body = new StringWriter();
+							body.Write("{\"spec\": ");
+							body.Write(swaggerjson);
+							body.Write(",\"swaggerUrl\":null");
+							if (Options != null) body.Write($",\"options\":{Options}");
+							if (Authorization != null) body.Write($",\"authorizationValue\":{Authorization}");
+							if (Security != null) body.Write($",\"securityDefinition\": {Security}");
+							body.Write("}");
+							var gen = (HttpWebRequest)WebRequest.Create(codegenurl);
+							gen.Method = "POST";
+							gen.ContentType = "application/json";
+							gen.Accept = "application/json";
+							gen.ProtocolVersion = HttpVersion.Version11;
+							var buf = Encoding.UTF8.GetBytes(body.ToString());
+							gen.ContentLength = buf.Length;
+							var w = gen.GetRequestStream();
+							w.Write(buf, 0, buf.Length);
+							w.Close();
+							var res = (HttpWebResponse)gen.GetResponse();
+							var r = new StreamReader(res.GetResponseStream(), Encoding.UTF8);
+							dynamic result = SimpleJson.DeserializeObject(r.ReadToEnd());
+							var rawzip = new WebClient().DownloadData(result.link);
+							var zipfile = Path.Combine(OutputDirectory, "swagger.zip");
+							File.WriteAllBytes(zipfile, rawzip);
+							var zip = new Ionic.Zip.ZipFile(zipfile);
+							zip.ExtractAll(OutputDirectory);
+						} catch (Exception ex) {
+							Log.LogErrorFromException(ex);
+							return false;
+						}
+					}
 
-			if (anyprocesses && !wait.WaitOne(Timeout*1000)) {
-				ProcessInfo[] infos;
-				lock (processes) infos = processes.ToArray();
-				foreach (var info in infos) {
-					if (!info.Process.HasExited) info.Process.Kill();
-					Terminated(info.Process, processes, true);
+					var odir = Path.Combine(Environment.CurrentDirectory, OutputDirectory);
+					output.AddRange(
+						Directory.EnumerateFiles(OutputDirectory)
+							.Select(file => new TaskItem { ItemSpec = file.StartsWith(odir) ? file.Substring(odir.Length).Trim('\\') : file }));
 				}
 			}
 
-			if (iisstarted) IisExpress.Stop();
+			//if (iisstarted) IisExpress.Stop();
 
 			Output = output.ToArray();
 			return !Log.HasLoggedErrors;
