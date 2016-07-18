@@ -418,6 +418,8 @@
     <Content Include="Lib\AutoRest\AutoRest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="CARoot.cer" />
+    <EmbeddedResource Include="CARoot.pvk" />
     <None Include="MSBuild.Community.Tasks.snk" />
     <None Include="AdditionalDocumentation.xml" />
     <EmbeddedResource Include="Sandcastle\hana.config" />

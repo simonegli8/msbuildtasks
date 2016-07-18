@@ -38,14 +38,27 @@ namespace MSBuild.Community.Tasks {
 			#region Parameters
 			public static string SiteFolder = null;
 			public static int? Port { get; set; }
-			public static int RandomPort => 15000 + new Random().Next(800);
+			public static int RandomPort => SSL ? (44300 + new Random().Next(99)) : (15000 + new Random().Next(800));
 			public static int ProcessStateChangeDelay = 18 * 1000;
+			public static bool SSL = false;
 			static readonly string IISPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"IIS Express\iisexpress.exe");
 			#endregion
 
+			static string TempSiteName = "GenerateWebProxies" + (SiteFolder +":" + Port.ToString()).GetHashCode().ToString();
 
 			public static void Start(int? port = null) {
-				Port = port ?? Port;
+				Port = port ?? Port ?? RandomPort;
+				if (SSL) {
+					try {
+						Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"add site \"/name:{TempSiteName}\" /bindings:\"https/*:{Port}:localhost\" \"/physicalPath:{SiteFolder}\"").WaitForExit();
+					} catch { }
+					try {
+						Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"set site \"/site.name:{TempSiteName}\" /-bindings").WaitForExit();
+						Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"set site \"/site.name:{TempSiteName}\" /+bindings.[protocol='https',bindingInformation='*:{Port}:localhost']").WaitForExit();
+						Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"set vdir \"/vdir.name:{TempSiteName}/\" \"/physicalPath:{SiteFolder}\"").WaitForExit();
+					} catch { }
+					System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, error) => true; // allow self signed certificates
+				}
 				Process.Start(InvocationInfo);
 				stopped = false;
 				isStarted = true;
@@ -67,6 +80,7 @@ namespace MSBuild.Community.Tasks {
 
 				pp.Kill();
 				if (wait) pp.WaitForExit(ProcessStateChangeDelay);
+				Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"delete site \"/site.name:{TempSiteName}\"");
 			}
 
 			static bool isStarted = false;
@@ -80,7 +94,8 @@ namespace MSBuild.Community.Tasks {
 
 			static readonly string ProcessName = Path.GetFileName(IISPath);
 			static string Quote(string value) { return "\"" + value.Trim() + "\""; }
-			static string CmdLine { get { return string.Format(@"{0} /port:{1}", Quote("/path:" + SiteFolder), Port ?? RandomPort); } }
+
+			static string CmdLine => SSL ? $"/site:{TempSiteName}" : string.Format("{0} /port:{1}", Quote("/path:" + SiteFolder), Port ?? RandomPort);
 
 			static ProcessStartInfo InvocationInfo => new ProcessStartInfo() {
 				FileName = IISPath,
@@ -126,6 +141,8 @@ namespace MSBuild.Community.Tasks {
 
 		public string SourceProject { get; set; }
 		public string Project { get; set; }
+
+		public bool SSL { get; set; } = false;
 
 		public string Namespace { get; set; } = "ServiceProxies";
 
@@ -355,6 +372,7 @@ namespace MSBuild.Community.Tasks {
 			var projTime = string.IsNullOrEmpty(Project) ? DateTime.MinValue : File.GetLastWriteTimeUtc(Project);
 			DateTime[] sourceTimes = null;
 
+			IisExpress.SSL = SSL;
 			var iisport = IisExpress.RandomPort;
 			var useIisExpress = Urls == null;
 			var newiis = false;
@@ -367,7 +385,7 @@ namespace MSBuild.Community.Tasks {
 
 			if (!newiis) iisport = IisExpress.Port.Value;
 
-			var ServerUrl = "http://localhost:" + iisport.ToString() + "/";
+			var ServerUrl = (SSL ? "https" : "http") + "://localhost:" + iisport.ToString() + "/";
 
 			if (Urls == null) {
 
@@ -479,7 +497,7 @@ namespace MSBuild.Community.Tasks {
 										var web = new WebClient();
 										try {
 											serverError = (web.DownloadString(url) == null);
-										} catch {
+										} catch (Exception ex) {
 											serverError = true;
 										}
 									}
