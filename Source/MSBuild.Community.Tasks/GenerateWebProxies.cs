@@ -58,6 +58,13 @@ namespace MSBuild.Community.Tasks {
 						Process.Start(@"C:\Program Files (x86)\IIS Express\appcmd.exe", $"set vdir \"/vdir.name:{TempSiteName}/\" \"/physicalPath:{SiteFolder}\"").WaitForExit();
 					} catch { }
 					System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, error) => true; // allow self signed certificates
+/*					var tmp = Path.GetTempFileName() + ".ps1";
+					File.WriteAllText(@"$local = (dir cert:\LocalMachine\My)
+$cert = (get-item cert:\LocalMachine\My\$local.Thumbprint)
+$store = (get-item cert:\LocalMachine\Root)
+$store.Open(""ReadWrite"")
+$store.Add($cert)
+$store.Close()"); */
 				}
 				Process.Start(InvocationInfo);
 				stopped = false;
