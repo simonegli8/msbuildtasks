@@ -206,13 +206,40 @@ Delete all bin and obj directories that start with MSBuild.Community.
 ## <a id="DependencyGraph">DependencyGraph</a> (<a id="DependencyGraph.DependencyGraph">DependencyGraph.DependencyGraph</a>)
 ### Description
 Reads a set of project files (.csproj, .vbproj) in InputFiles and generate a GraphViz style syntax.
-            You can paste the result of the graphs in places like http://graphviz-dev.appspot.com/ to see your chart or
-            run the file using the GraphViz tool http://www.graphviz.org/
-### No example given
-The developer of this task did not add an example in the summary documentation.
+             You can paste the result of the graphs in places like http://graphviz-dev.appspot.com/ to see your chart or
+             run the file using the GraphViz tool http://www.graphviz.org/
+### Example
 
+             
+       <ItemGroup>
+       <Dependency Include="Project01.csproj" />
+       </ItemGroup>
+            
+       <Target Name="Default">
+       <DependencyGraph InputFiles="@(Dependency)" IsIncludeProjectDependecies="true" ExcludeReferences="^System" />
+       </Target>
+Result:
+                 digraph {
+                     subgraph ProjectReferences {
+                         node [shape=box];
+                         "{4993C164-5F2A-4831-A5B1-E5E579C76B28}" [label="Project01"];
+                         "{1B5D5300-8070-48DB-8A81-B39764231954}" [label="Project03"];
+                         "{E7D8035C-3CEA-4D9C-87FD-0F5C0DB5F592}" [label="Project02"];
+                         "{7DBCDEE7-D048-432E-BEEB-928E362E3063}" [label="Project03"];
+                     }
+                     "{4993C164-5F2A-4831-A5B1-E5E579C76B28}" -> "Microsoft.CSharp";
+                     "{1B5D5300-8070-48DB-8A81-B39764231954}" -> "Microsoft.CSharp";
+                     "{E7D8035C-3CEA-4D9C-87FD-0F5C0DB5F592}" -> "Microsoft.CSharp";
+                     "{7DBCDEE7-D048-432E-BEEB-928E362E3063}" -> "Microsoft.CSharp";
+                     "{4993C164-5F2A-4831-A5B1-E5E579C76B28}" -> "{1B5D5300-8070-48DB-8A81-B39764231954}";
+                     "{4993C164-5F2A-4831-A5B1-E5E579C76B28}" -> "{E7D8035C-3CEA-4D9C-87FD-0F5C0DB5F592}";
+                     "{E7D8035C-3CEA-4D9C-87FD-0F5C0DB5F592}" -> "{7DBCDEE7-D048-432E-BEEB-928E362E3063}";
+            	}    
+             
 * * *
 
+        
+        
         
         
         
@@ -230,6 +257,32 @@ The developer of this task did not add an example in the summary documentation.
         
         
         
+        
+        
+        
+## <a id="BaseReference">BaseReference</a> (<a id="DependencyGraph.BaseReference">DependencyGraph.BaseReference</a>)
+### Description
+Base class for all references
+### No example given
+The developer of this task did not add an example in the summary documentation.
+
+* * *
+
+        
+        
+        
+## <a id="AssemblyReference">AssemblyReference</a> (<a id="DependencyGraph.AssemblyReference">DependencyGraph.AssemblyReference</a>)
+### Description
+Represents an assembly reference inside a project file
+### No example given
+The developer of this task did not add an example in the summary documentation.
+
+* * *
+
+        
+        
+        
+        
 ## <a id="ProjectReference">ProjectReference</a> (<a id="DependencyGraph.ProjectReference">DependencyGraph.ProjectReference</a>)
 ### Description
 Represents a project reference inside a project file
@@ -238,6 +291,10 @@ The developer of this task did not add an example in the summary documentation.
 
 * * *
 
+        
+        
+        
+        
         
         
         
@@ -2448,7 +2505,7 @@ MSBuild task that replaces tokens in a template file and writes out a new file.
             	</Tokens>
       </ItemGroup>
             
-      <TemplateFile Template="ATemplateFile.template" OutputFilename="ReplacedFile.txt" Tokens="@(Tokens)" />
+      <TemplateFile Template="ATemplateFile.template" TemplateEncoding="Windows-1251" OutputFilename="ReplacedFile.txt" OutputEncoding="UTF-16" Tokens="@(Tokens)" />
             
             
 * * *
@@ -2674,6 +2731,7 @@ Shows how to analyse an assembly and use an XSLT stylesheet
             
 * * *
 
+        
         
         
         
@@ -3109,6 +3167,47 @@ Run NUnit tests.
       </ItemGroup>
       <Target Name="NUnit">
       <NUnit Assemblies="@(TestAssembly)" />
+      </Target>
+            
+            
+* * *
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+## <a id="NUnit3">NUnit3</a>
+### Description
+Run NUnit 3.x on a group of assemblies.
+### Example
+Run NUnit3 tests.
+            
+      <CreateItem Include="*\bin\Debug\*.*.UnitTests.dll">
+         <Output TaskParameter="Include" ItemName="TestAssemblies"/>
+      </CreateItem>
+      <Target Name="NUnit3">
+      <!-- Run NUnit passing in the list of assemblies built above -->		
+      <NUnit3 Assemblies="@(TestAssemblies)" 
+	          Process="Multiple" 
+			  TestTimeout="2000" 
+	          Framework="v4.0" 
+			  Force32Bit="true" 
+			  Workers="10" 
+			  EnableShadowCopy="true" 
+			  OutputXmlFile="myTestOutput.xml"
+			  WorkingDirectory="./"
+			  ShowLabels="All"
+			  NoHeader="true"
+			  NoColor="true"
+			  Verbose="true"/>
       </Target>
             
             

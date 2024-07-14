@@ -6,9 +6,11 @@ The MSBuild Community Tasks Project is an open source project for MSBuild tasks.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/16y9eh9swsqn5g8l?svg=true)](https://ci.appveyor.com/project/LoreSoft/msbuildtasks)
 
-![NuGet Version](https://img.shields.io/nuget/v/MSBuildTasks.svg?style=flat-square)
+[![NuGet Version](https://img.shields.io/nuget/v/MSBuildTasks.svg)](https://nuget.org/packages/MSBuildTasks)
 
-![NuGet Version](https://img.shields.io/nuget/dt/MSBuildTasks.svg?style=flat-square)
+## Maintainer Wanted
+
+Looking for a new maintainer for this project.  Please let @pwelter34 know if you are interesting in becoming a maintainer for this project.
 
 ## Download
 
@@ -118,7 +120,7 @@ https://groups.google.com/d/forum/msbuildtasks
   </tr>
   <tr>
     <td><a href="Documentation/TaskDocs.md#Multiple">Multiple</a></td>
-    <td>Multiple numbers</td>
+    <td>Multiply numbers</td>
   </tr>
   <tr>
     <td><a href="Documentation/TaskDocs.md#MV">MV</a></td>
@@ -131,6 +133,10 @@ https://groups.google.com/d/forum/msbuildtasks
   <tr>
     <td><a href="Documentation/TaskDocs.md#NUnit">NUnit</a></td>
     <td>Run NUnit on a group of assemblies.</td>
+  </tr>
+  <tr>
+    <td><a href="Documentation/TaskDocs.md#NUnit3">NUnit3</a></td>
+    <td>Run NUnit3.x on a group of assemblies.</td>
   </tr>
   <tr>
     <td><a href="Documentation/TaskDocs.md#RegexMatch">RegexMatch</a></td>
@@ -207,6 +213,10 @@ https://groups.google.com/d/forum/msbuildtasks
   <tr>
     <td><a href="Documentation/TaskDocs.md#TaskSchema">TaskSchema</a></td>
     <td>A Task that generates a XSD schema of the tasks in an assembly.</td>
+  </tr>
+  <tr>
+    <td><a href="Documentation/TaskDocs.md#TemplateFile">TemplateFile</a></td>
+    <td>A task that replaces tokens in a template file and writes out a new file.</td>
   </tr>
   <tr>
     <td><a href="Documentation/TaskDocs.md#Time">Time</a></td>
@@ -318,7 +328,7 @@ Alternatively if you want to get started with the nuget packages please add the 
 
 ## License
 
-Copyright (c) 2015, LoreSoft
+Copyright (c) 2016, LoreSoft
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
