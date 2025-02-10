@@ -36,8 +36,6 @@ using System.ServiceProcess;
 using Service = System.ServiceProcess.ServiceController;
 
 
-
-
 namespace MSBuild.Community.Tasks
 {
 	/// <summary>

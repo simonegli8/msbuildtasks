@@ -15,8 +15,7 @@ using Microsoft.Build.Framework;
 using System.Threading;
 using MissingLinq.Linq2Management.Context;
 using MissingLinq.Linq2Management.Model.CIMv2;
-using RestSharp;
-using Ionic.Zip;
+using Newtonsoft.Json;
 
 namespace MSBuild.Community.Tasks {
 
@@ -620,7 +619,7 @@ $store.Close()"); */
 							w.Close();
 							var res = (HttpWebResponse)gen.GetResponse();
 							var r = new StreamReader(res.GetResponseStream(), Encoding.UTF8);
-							dynamic result = SimpleJson.DeserializeObject(r.ReadToEnd());
+							dynamic result = JsonConvert.DeserializeObject(r.ReadToEnd());
 							var rawzip = new WebClient().DownloadData(result.link);
 							var zipfile = Path.Combine(OutputDirectory, "swagger.zip");
 							File.WriteAllBytes(zipfile, rawzip);

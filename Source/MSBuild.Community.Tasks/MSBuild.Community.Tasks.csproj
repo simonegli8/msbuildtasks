@@ -1,462 +1,264 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F88A60A8-564C-4E70-92DC-E92DBB897641}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MSBuild.Community.Tasks</RootNamespace>
-    <AssemblyName>MSBuild.Community.Tasks.Custom</AssemblyName>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>MSBuild.Community.Tasks.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\MSBuild.Community.Tasks.Custom.xml</DocumentationFile>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\Build\MSBuild.Community.Tasks.xml</DocumentationFile>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="DotNetZip, Version=1.10.1.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotNetZip.1.10.1\lib\net20\DotNetZip.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Compiler.CodeDom, Version=1.0.0.1, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\FSharp.Compiler.CodeDom.1.0.0.1\lib\net40\FSharp.Compiler.CodeDom.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Web.Infrastructure">
-      <HintPath>..\Lib\Microsoft.Web.Infrastructure.dll</HintPath>
-    </Reference>
-    <Reference Include="MissingLinq.Linq2Management, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MissingLinq.Linq2Management.1.0.0.0\lib\net40\MissingLinq.Linq2Management.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ProxyGenerator">
-      <HintPath>..\Lib\ProxyGenerator.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Web.Helpers">
-      <HintPath>..\Lib\System.Web.Helpers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Razor">
-      <HintPath>..\Lib\System.Web.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages">
-      <HintPath>..\Lib\System.Web.WebPages.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Deployment">
-      <HintPath>..\Lib\System.Web.WebPages.Deployment.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Razor">
-      <HintPath>..\Lib\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="AddUsings.cs" />
-    <Compile Include="AspNet\InstallAspNet.cs" />
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Attrib.cs" />
-    <Compile Include="ChangeBrand.cs" />
-    <Compile Include="AutoDataContract.cs" />
-    <Compile Include="ByteDescriptions.cs" />
-    <Compile Include="ChangeNamespace.cs" />
-    <Compile Include="Checksum\Checksum.cs" />
-    <Compile Include="CommentOut.cs" />
-    <Compile Include="Computer\Computer.cs" />
-    <Compile Include="Beep\Beep.cs" />
-    <Compile Include="ContentFilter.cs" />
-    <Compile Include="CustomReplace.cs" />
-    <Compile Include="DeleteTree.cs" />
-    <Compile Include="DependencyGraph\DependencyGraph.cs" />
-    <Compile Include="DependencyGraph\ProjectFileParser.cs" />
-    <Compile Include="DependencyGraph\Reference.cs" />
-    <Compile Include="EmbedNativeResource.cs" />
-    <Compile Include="FtpUpload\FtpUpload.cs" />
-    <Compile Include="FtpUpload\IFtpWebRequest.cs" />
-    <Compile Include="FtpUpload\RealFtpWebRequest.cs" />
-    <Compile Include="Ftp\FtpClientTaskBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Ftp\FtpCreateRemoteDirectory.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Ftp\FtpDirectoryExists.cs" />
-    <Compile Include="Ftp\FtpException.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Ftp\FtpFile.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Ftp\FtpReply.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Ftp\FtpUploadDirectoryContent.cs" />
-    <Compile Include="Fusion\CacheFlags.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Fusion\CommitFlags.cs" />
-    <Compile Include="Fusion\QueryFlags.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Fusion\SystemInfo.cs" />
-    <Compile Include="Fusion\UninstallStatus.cs" />
-    <Compile Include="Fusion\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Fusion\FusionWrapper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Fusion\IAssemblyCache.cs" />
-    <Compile Include="Fusion\IAssemblyCacheItem.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Fusion\InstallReference.cs" />
-    <Compile Include="Fusion\NativeMethods.cs" />
-    <Compile Include="GenerateWebProxies.cs" />
-    <Compile Include="Git\GitCommitDate.cs" />
-    <Compile Include="Git\GitDescribe.cs" />
-    <Compile Include="Git\GitBranch.cs" />
-    <Compile Include="Git\GitClient.cs" />
-    <Compile Include="Git\GitCommits.cs" />
-    <Compile Include="Git\GitPendingChanges.cs" />
-    <Compile Include="Git\GitVersion.cs" />
-    <Compile Include="HtmlHelp\ChmCompiler.cs" />
-    <Compile Include="HtmlHelp\HxCompiler.cs" />
-    <Compile Include="InnoSetup.cs" />
-    <Compile Include="ItemFilter.cs" />
-    <Compile Include="JavaScript\CssCompress.cs" />
-    <Compile Include="JavaScript\CssCompressor.cs" />
-    <Compile Include="Merge.cs" />
-    <Compile Include="Messages.cs" />
-    <Compile Include="Mks\MksAdd.cs" />
-    <Compile Include="Mks\MksCheckin.cs" />
-    <Compile Include="Mks\MksCheckpoint.cs" />
-    <Compile Include="Mks\MksCreateSandbox.cs" />
-    <Compile Include="Mks\MksDopSandbox.cs" />
-    <Compile Include="Mks\MksDrop.cs" />
-    <Compile Include="Mks\MksLock.cs" />
-    <Compile Include="Mks\MksMakeWritable.cs" />
-    <Compile Include="Mks\MksResync.cs" />
-    <Compile Include="Mks\MksUnlock.cs" />
-    <Compile Include="Net\HttpRequest.cs" />
-    <Compile Include="NuGet\NuGetBase.cs" />
-    <Compile Include="NuGet\NuGetDelete.cs" />
-    <Compile Include="NuGet\NuGetInstall.cs" />
-    <Compile Include="NuGet\NuGetPack.cs" />
-    <Compile Include="NuGet\NuGetPush.cs" />
-    <Compile Include="NuGet\NuGetRestore.cs" />
-    <Compile Include="NuGet\NuGetUpdate.cs" />
-    <Compile Include="NUnit3.cs" />
-    <Compile Include="PathUtil.cs" />
-    <Compile Include="Pdb2Mdb.cs" />
-    <Compile Include="Pdb2mdb\BitAccess.cs" />
-    <Compile Include="Pdb2mdb\BitSet.cs" />
-    <Compile Include="Pdb2mdb\CvInfo.cs" />
-    <Compile Include="Pdb2mdb\DataStream.cs" />
-    <Compile Include="Pdb2mdb\DbiDbgHdr.cs" />
-    <Compile Include="Pdb2mdb\DbiHeader.cs" />
-    <Compile Include="Pdb2mdb\DbiModuleInfo.cs" />
-    <Compile Include="Pdb2mdb\DbiSecCon.cs" />
-    <Compile Include="Pdb2mdb\Driver.cs" />
-    <Compile Include="Pdb2mdb\Interfaces.cs" />
-    <Compile Include="Pdb2mdb\IntHashTable.cs" />
-    <Compile Include="Pdb2mdb\MsfDirectory.cs" />
-    <Compile Include="Pdb2mdb\PdbConstant.cs" />
-    <Compile Include="Pdb2mdb\PdbDebugException.cs" />
-    <Compile Include="Pdb2mdb\PdbException.cs" />
-    <Compile Include="Pdb2mdb\PdbFile.cs" />
-    <Compile Include="Pdb2mdb\PdbFileHeader.cs" />
-    <Compile Include="Pdb2mdb\PdbFunction.cs" />
-    <Compile Include="Pdb2mdb\PdbLine.cs" />
-    <Compile Include="Pdb2mdb\PdbLines.cs" />
-    <Compile Include="Pdb2mdb\PdbReader.cs" />
-    <Compile Include="Pdb2mdb\PdbScope.cs" />
-    <Compile Include="Pdb2mdb\PdbSlot.cs" />
-    <Compile Include="Pdb2mdb\PdbSource.cs" />
-    <Compile Include="Pdb2mdb\PdbWriter.cs" />
-    <Compile Include="Pdb2mdb\SourceLocationProvider.cs" />
-    <Compile Include="Regex\RegexCompiler.cs" />
-    <Compile Include="Rename.cs" />
-    <Compile Include="Replace.cs" />
-    <Compile Include="Sandcastle\BuildAssembler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sandcastle\ChmBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sandcastle\DBCSFix.cs" />
-    <Compile Include="Sandcastle\MRefBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sandcastle\Sandcastle.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sandcastle\SandcastleEnviroment.cs" />
-    <Compile Include="Sandcastle\SandcastleToolBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sandcastle\XslTransform.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Services\FileSystem.cs" />
-    <Compile Include="GacUtil.cs" />
-    <Compile Include="JavaScript\JavaScriptCompressor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JavaScript\JSCompress.cs" />
-    <Compile Include="Oracle\AddTnsName.cs" />
-    <Compile Include="Oracle\TnsEntry.cs" />
-    <Compile Include="Oracle\TnsParser.cs" />
-    <Compile Include="RoboCopy.cs" />
-    <Compile Include="Sound\Sound.cs" />
-    <Compile Include="SourceServer\FileBase.cs" />
-    <Compile Include="SourceServer\PdbStr.cs" />
-    <Compile Include="SourceServer\SourceFile.cs" />
-    <Compile Include="SourceServer\SourceIndexBase.cs" />
-    <Compile Include="SourceServer\SrcTool.cs" />
-    <Compile Include="SourceServer\SvnSourceIndex.cs" />
-    <Compile Include="SourceServer\SymbolFile.cs" />
-    <Compile Include="SourceServer\TfsSourceIndex.cs" />
-    <Compile Include="SqlServer\SqlPubWiz.cs" />
-    <Compile Include="Subversion\SvnCopy.cs" />
-    <Compile Include="Subversion\Info.cs" />
-    <Compile Include="Subversion\SvnStatus.cs" />
-    <Compile Include="SymbolServer\SymStore.cs" />
-    <Compile Include="Tfs\InfoCommandResponse.cs" />
-    <Compile Include="Tfs\TfsClient.cs" />
-    <Compile Include="Services\Win32Registry.cs" />
-    <Compile Include="UpdateFilter.cs" />
-    <Compile Include="User\User.cs" />
-    <Content Include="Lib\AutoRest\AutoRest.Core.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.CSharp.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Extensions.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Java.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.NodeJS.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Python.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Ruby.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.AzureResourceSchema.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.CSharp.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Extensions.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Java.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.NodeJS.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Python.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Generator.Ruby.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Modeler.CompositeSwagger.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\AutoRest.Modeler.Swagger.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Lib\AutoRest\Newtonsoft.Json.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MSBuild.Community.Tasks.Custom.Targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Compile Include="WebUpload.cs" />
-    <Compile Include="Xml\XmlMassUpdate.cs" />
-    <Compile Include="IIS\WebDirectoryScriptMap.cs" />
-    <Compile Include="IIS\WebDirectorySetting.cs" />
-    <Compile Include="ILMerge\ILMerge.cs" />
-    <Compile Include="Install\InstallAssembly.cs" />
-    <Compile Include="Install\UninstallAssembly.cs" />
-    <Compile Include="Math\Modulo.cs" />
-    <Compile Include="Prompt.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Regex\RegexBase.cs" />
-    <Compile Include="Regex\RegexMatch.cs" />
-    <Compile Include="Regex\RegexReplace.cs" />
-    <Compile Include="Schema\DocumentationLoader.cs" />
-    <Compile Include="Schema\ReflectionHelper.cs" />
-    <Compile Include="Schema\TaskSchema.cs" />
-    <Compile Include="Schema\TaskSchemaAnalyser.cs" />
-    <Compile Include="Schema\TaskVisitorBase.cs" />
-    <Compile Include="Solution\GetSolutionProjects.cs" />
-    <Compile Include="SqlServer\ExecuteDDL.cs" />
-    <Compile Include="SqlServer\ServerConnectionWrapper.cs" />
-    <Compile Include="Subversion\SvnInfo.cs" />
-    <Compile Include="TemplateFile\TemplateFile.cs" />
-    <Compile Include="Time\Time.cs" />
-    <Compile Include="Xml\XmlNodeTaskItem.cs" />
-    <Compile Include="Xml\XmlQuery.cs" />
-    <Compile Include="Xml\XmlTaskHelper.cs" />
-    <Compile Include="Xslt\Xslt.cs" />
-    <Compile Include="FileUpdate.cs" />
-    <Compile Include="FxCop.cs" />
-    <Compile Include="IIS\WebBase.cs" />
-    <Compile Include="ServiceController.cs" />
-    <Compile Include="FtpUpload\FtpRequestCreator.cs" />
-    <Compile Include="IIS\AppPoolCreate.cs" />
-    <Compile Include="IIS\WebDirectoryCreate.cs" />
-    <Compile Include="IIS\AppPoolDelete.cs" />
-    <Compile Include="IIS\WebDirectoryDelete.cs" />
-    <Compile Include="IIS\AppPoolController.cs" />
-    <Compile Include="Mail.cs" />
-    <Compile Include="Math\Add.cs" />
-    <Compile Include="Math\Divide.cs" />
-    <Compile Include="Math\MathBase.cs" />
-    <Compile Include="Math\Multiple.cs" />
-    <Compile Include="Math\Subtract.cs" />
-    <Compile Include="MV.cs" />
-    <Compile Include="NDoc.cs" />
-    <Compile Include="NUnit.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="ServiceQuery.cs" />
-    <Compile Include="RegistryRead.cs" />
-    <Compile Include="RegistryWrite.cs" />
-    <Compile Include="Script.cs" />
-    <Compile Include="Sleep.cs" />
-    <Compile Include="SqlExecute.cs" />
-    <Compile Include="Subversion\SvnCheckout.cs" />
-    <Compile Include="Subversion\SvnCommit.cs" />
-    <Compile Include="Subversion\SvnExport.cs" />
-    <Compile Include="Subversion\SvnClient.cs" />
-    <Compile Include="Subversion\SvnVersion.cs" />
-    <Compile Include="Subversion\SvnUpdate.cs" />
-    <Compile Include="ToolPathUtil.cs" />
-    <Compile Include="Unzip.cs" />
-    <Compile Include="Version.cs" />
-    <Compile Include="WebDownload.cs" />
-    <Compile Include="XmlRead.cs" />
-    <Compile Include="XmlUpdate.cs" />
-    <Compile Include="Zip.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Pdb2mdb\.gitattributes" />
-    <Content Include="Lib\AutoRest\AutoRest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <EmbeddedResource Include="CARoot.cer" />
-    <EmbeddedResource Include="CARoot.pvk" />
-    <None Include="MSBuild.Community.Tasks.snk" />
-    <None Include="AdditionalDocumentation.xml" />
-    <EmbeddedResource Include="Sandcastle\hana.config" />
-    <EmbeddedResource Include="Sandcastle\prototype.config" />
-    <EmbeddedResource Include="Sandcastle\vs2005.config" />
-    <Content Include="FtpUpload\SomeDevNotesOnFtpUpload.txt" />
-    <Content Include="MSBuild.Community.Tasks.Targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="NUnitReport.xsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="packages.config" />
-    <None Include="Pdb2mdb\ChangeLog" />
-    <None Include="Pdb2mdb\LICENSE" />
-    <None Include="Pdb2mdb\Makefile" />
-    <None Include="Pdb2mdb\pdb2mdb.exe.sources" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GitHub\" />
-    <Folder Include="Vault\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyOriginatorKeyFile>MSBuild.Community.Tasks.snk</AssemblyOriginatorKeyFile>
+        <TargetFrameworks>net48;net8.0</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <OutputPath>bin\$(Configuration)</OutputPath>
+        <Nullable>disable</Nullable>
+        <LangVersion>13</LangVersion>
+        <PublishDir>..\..\Build\$(Configuration)\$(TargetFramework)</PublishDir>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugType>portable</DebugType>
+        <DocumentationFile>bin\$(Configuration)\MSBuild.Community.Tasks.xml</DocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>portable</DebugType>
+        <DefineConstants />
+        <DocumentationFile>..\..\Build\MSBuild.Community.Tasks.xml</DocumentationFile>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
+        <PackageReference Include="FSharp.Compiler.CodeDom" Version="1.0.0.1" />
+        <PackageReference Include="autorest" Version="0.16.0" />
+        <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+        <PackageReference Include="RestSharp" Version="112.1.0" />
+        <PackageReference Include="Microsoft.Web.Administration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+        <PackageReference Include="MissingLinq.Linq2Management" Version="1.0.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework) == 'net8.0'">
+        <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+        <PackageReference Include="System.DirectoryServices" Version="9.0.1" />
+        <PackageReference Include="System.Management" Version="9.0.1" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.1" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework) == 'net48'">
+        <Reference Include="Microsoft.Build.Framework" />
+        <Reference Include="Microsoft.Build.Utilities.v4.0" />
+        <!--<Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />-->
+        <Reference Include="Microsoft.CSharp" />
+        <!--<Reference Include="Microsoft.Web.Infrastructure">
+            <HintPath>..\Lib\Microsoft.Web.Infrastructure.dll</HintPath>
+        </Reference>-->
+        <Reference Include="System.DirectoryServices" />
+        <Reference Include="System.Management" />
+        <Reference Include="System.ServiceProcess" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="ProxyGenerator">
+            <HintPath>..\Lib\ProxyGenerator.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.Helpers">
+            <HintPath>..\Lib\System.Web.Helpers.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+            <HintPath>..\Lib\System.Web.Mvc.dll</HintPath>
+            <SpecificVersion>False</SpecificVersion>
+        </Reference>
+        <Reference Include="System.Web.Razor">
+            <HintPath>..\Lib\System.Web.Razor.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages">
+            <HintPath>..\Lib\System.Web.WebPages.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages.Deployment">
+            <HintPath>..\Lib\System.Web.WebPages.Deployment.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages.Razor">
+            <HintPath>..\Lib\System.Web.WebPages.Razor.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\GlobalAssemblyInfo.cs" Link="GlobalAssemblyInfo.cs" />
+        <Content Include="Lib\AutoRest\AutoRest.Core.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.exe">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.CSharp.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Extensions.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Java.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.NodeJS.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Python.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Ruby.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.AzureResourceSchema.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.CSharp.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Extensions.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Java.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.NodeJS.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Python.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Ruby.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Modeler.CompositeSwagger.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Modeler.Swagger.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\Newtonsoft.Json.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="MSBuild.Community.Tasks.Custom.Targets">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Pdb2mdb\.gitattributes" />
+        <Content Include="Lib\AutoRest\AutoRest.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <EmbeddedResource Include="CARoot.cer" />
+        <EmbeddedResource Include="CARoot.pvk" />
+        <None Include="Mks.proj" />
+        <None Include="MSBuild.Community.Tasks.snk" />
+        <None Include="AdditionalDocumentation.xml" />
+        <EmbeddedResource Include="Sandcastle\hana.config" />
+        <EmbeddedResource Include="Sandcastle\prototype.config" />
+        <EmbeddedResource Include="Sandcastle\vs2005.config" />
+        <Content Include="FtpUpload\SomeDevNotesOnFtpUpload.txt" />
+        <Content Include="MSBuild.Community.Tasks.Targets">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="NUnitReport.xsl">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Include="Pdb2mdb\ChangeLog" />
+        <None Include="Pdb2mdb\LICENSE" />
+        <None Include="Pdb2mdb\Makefile" />
+        <None Include="Pdb2mdb\pdb2mdb.exe.sources" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <SubType>Designer</SubType>
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="SourceSafe\VssAdd.cs" />
+        <Compile Remove="SourceSafe\VssBase.cs" />
+        <Compile Remove="SourceSafe\VssCheckin.cs" />
+        <Compile Remove="SourceSafe\VssCheckout.cs" />
+        <Compile Remove="SourceSafe\VssClean.cs" />
+        <Compile Remove="SourceSafe\VssDiff.cs" />
+        <Compile Remove="SourceSafe\VssGet.cs" />
+        <Compile Remove="SourceSafe\VssHistory.cs" />
+        <Compile Remove="SourceSafe\VssLabel.cs" />
+        <Compile Remove="SourceSafe\VssRecursiveBase.cs" />
+        <Compile Remove="SourceSafe\VssUndoCheckout.cs" />
+        <Compile Remove="Subversion\SvnLock.cs" />
+        <Compile Remove="Subversion\SvnUnlock.cs" />
+        <Compile Remove="Tfs\IServer.cs" />
+        <Compile Remove="Tfs\TeamFoundationServer.cs" />
+        <Compile Remove="Tfs\TeamFoundationServerException.cs" />
+        <Compile Remove="Tfs\TfsVersion.cs" />
+        <Compile Remove="Vault\VaultAddFile.cs" />
+        <Compile Remove="Vault\VaultBase.cs" />
+        <Compile Remove="Vault\VaultCheckin.cs" />
+        <Compile Remove="Vault\VaultCheckout.cs" />
+        <Compile Remove="Vault\VaultGetFile.cs" />
+        <Compile Remove="Vault\VaultUndoCheckout.cs" />
+        <Compile Remove="Tfs\Proxies\Changeset.cs" />
+        <Compile Remove="Tfs\Proxies\RecursionType.cs" />
+        <Compile Remove="Tfs\Proxies\VersionControlServer.cs" />
+        <Compile Remove="Tfs\Proxies\VersionSpec.cs" />
+        <Compile Remove="Tfs\Proxies\Workspace.cs" />
+        <Compile Remove="Tfs\Proxies\WorkspaceInfo.cs" />
+        <Compile Remove="Tfs\Proxies\WorkspaceVersionSpec.cs" />
+        <Compile Remove="Tfs\Proxies\Workstation.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestConfiguration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestOrder.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestPet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\CategoryTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\InlineResponse200Tests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\Model200ResponseTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\ModelReturnTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\NameTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\OrderTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\PetApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\PetTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\SpecialModelNameTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\StoreApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\TagTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\UserApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\UserTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\PetApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\StoreApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\UserApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiException.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiResponse.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\Configuration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Animal.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Cat.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Category.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Dog.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\InlineResponse200.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Model200Response.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\ModelReturn.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Name.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\ObjectReturn.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Order.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Pet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\SpecialModelName.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Tag.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Task.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\User.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Properties\AssemblyInfo.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\PetApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\StoreApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\UserApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\ApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\ApiException.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\Configuration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Category.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Order.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Pet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Tag.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\User.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Properties\PublishProfiles\" />
+    </ItemGroup>
+
+    <Target Name="CopyTargetsFile" AfterTargets="Build">
+        <Copy SourceFiles="MSBuild.Community.Tasks.Targets" DestinationFolder="$(PublishDir)\..\" />
+    </Target>
 </Project>
