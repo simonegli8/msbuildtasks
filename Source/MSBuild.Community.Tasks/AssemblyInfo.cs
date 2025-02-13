@@ -32,6 +32,7 @@ using System.Text;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Linq;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -523,7 +524,8 @@ namespace MSBuild.Community.Tasks {
 			codeCompileUnit.Namespaces.Add(codeNamespace);
 
 			// Add each configured attribute
-			foreach (var attribute in _attributes) {
+			foreach (var attribute in _attributes.OrderBy(item => item.Key)) 
+			{
 				String name = attribute.Key;
 				String value = attribute.Value;
 
