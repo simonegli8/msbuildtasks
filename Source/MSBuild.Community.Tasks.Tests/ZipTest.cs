@@ -42,8 +42,8 @@ namespace MSBuild.Community.Tasks.Tests
             if (File.Exists(task.ZipFileName))
                 File.Delete(task.ZipFileName);
 
-            Assert.That(task.Execute(), "Execute Failed");
-            Assert.That(File.Exists(task.ZipFileName), "Zip file not found");
+            Assert.IsTrue(task.Execute(), "Execute Failed");
+            Assert.IsTrue(File.Exists(task.ZipFileName), "Zip file not found");
         }
 
         [Test(Description = "Zip files and empty folders into a zip archive")]
@@ -76,8 +76,8 @@ namespace MSBuild.Community.Tasks.Tests
             if (File.Exists(task.ZipFileName))
                 File.Delete(task.ZipFileName);
 
-            Assert.That(task.Execute(), "Execute Failed");
-            Assert.That(File.Exists(task.ZipFileName), "Zip file not found");
+            Assert.IsTrue(task.Execute(), "Execute Failed");
+            Assert.IsTrue(File.Exists(task.ZipFileName), "Zip file not found");
         }
 
         [Test]
@@ -100,8 +100,8 @@ namespace MSBuild.Community.Tasks.Tests
             if (File.Exists(task.ZipFileName))
                 File.Delete(task.ZipFileName);
 
-            Assert.That(task.Execute(), "Execute Failed");
-            Assert.That(File.Exists(task.ZipFileName), "Zip file not found");
+            Assert.IsTrue(task.Execute(), "Execute Failed");
+            Assert.IsTrue(File.Exists(task.ZipFileName), "Zip file not found");
         }
 
         [Test(Description = "Zip files with relative path")]
@@ -126,9 +126,9 @@ namespace MSBuild.Community.Tasks.Tests
             if (File.Exists(task.ZipFileName))
                 File.Delete(task.ZipFileName);
             
-            Assert.That(task.Execute(), "Execute Failed");                        
-            Assert.That(ZipFile.Read(task.ZipFileName).ContainsEntry("readme.md"), "The zip doesnt contains the readme.md file");            
-            Assert.That(File.Exists(task.ZipFileName), "Zip file not found");            
+            Assert.IsTrue(task.Execute(), "Execute Failed");                        
+            Assert.IsTrue(ZipFile.Read(task.ZipFileName).ContainsEntry("readme.md"), "The zip doesnt contains the readme.md file");            
+            Assert.IsTrue(File.Exists(task.ZipFileName), "Zip file not found");            
         }
 
         [Test(Description = "Zip 9 * 128kb with parallel compression")]
@@ -152,8 +152,8 @@ namespace MSBuild.Community.Tasks.Tests
             if (File.Exists(task.ZipFileName)) File.Delete(task.ZipFileName);
 
             // First zip up the file
-            Assert.That(task.Execute(), "Execute Failed");
-            Assert.That(File.Exists(task.ZipFileName), "Zip file not found");
+            Assert.IsTrue(task.Execute(), "Execute Failed");
+            Assert.IsTrue(File.Exists(task.ZipFileName), "Zip file not found");
 
             // Then delete the original, and try to unzip the file
             File.Delete(testFile);
@@ -161,7 +161,7 @@ namespace MSBuild.Community.Tasks.Tests
             unzipTask.BuildEngine = new MockBuild();
             unzipTask.ZipFileName = task.ZipFileName;
             unzipTask.TargetDirectory = testDir;
-            Assert.That(unzipTask.Execute());
+            Assert.IsTrue(unzipTask.Execute());
         }
 
         public void CreateTestFile(int fileSize, string filePath)

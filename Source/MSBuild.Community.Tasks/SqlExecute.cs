@@ -33,7 +33,7 @@ using System.ComponentModel;
 using System.Text;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.IO;
 
 

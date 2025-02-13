@@ -6,13 +6,13 @@ using System.Xml;
 
 namespace MSBuild.Community.Tasks.Tests.Xml
 {
-    public class XPathAsserter
+    public class XPathAsserter : AbstractAsserter
     {
         string message;
         string actualValue;
         string expectedValue;
 
-        public XPathAsserter(XmlDocument document, string xpath, string expectedValue, string message, params object[] args)
+        public XPathAsserter(XmlDocument document, string xpath, string expectedValue, string message, params object[] args) : base(message, args)
         {
             XmlNode node = document.SelectSingleNode(xpath);
             if (node == null)
@@ -27,11 +27,13 @@ namespace MSBuild.Community.Tasks.Tests.Xml
             this.message = message;
         }
 
-        public string Message
+        public override string Message
         {
             get
             {
-                return $"{this.Expectation} expected, but {actualValue} found.";
+                base.FailureMessage.DisplayExpectedValue(this.Expectation);
+                base.FailureMessage.DisplayActualValue(this.actualValue);
+                return base.FailureMessage.ToString();
             }
         }
 
@@ -43,7 +45,7 @@ namespace MSBuild.Community.Tasks.Tests.Xml
             }
         }
 
-        public bool Test()
+        public override bool Test()
         {
             return (expectedValue == actualValue);           
         }

@@ -443,9 +443,9 @@ namespace MSBuild.Community.Tasks.Sandcastle
             BuildAssembler build = new BuildAssembler();
             CopyBuildEngine(build);
 
-            build.EnvironmentVariables["CommentsDir"] = CommentsDirectory;
-            build.EnvironmentVariables["OutputDir"] = Path.Combine(OutputDirectory, "html");
-            build.EnvironmentVariables["reflectionfile"] = ReflectionFile;
+            build.EnviromentVariables["CommentsDir"] = CommentsDirectory;
+            build.EnviromentVariables["OutputDir"] = Path.Combine(OutputDirectory, "html");
+            build.EnviromentVariables["reflectionfile"] = ReflectionFile;
 
             build.ConfigFile = new TaskItem(configFile);
             build.ManifestFile = new TaskItem(ManifestFile);

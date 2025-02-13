@@ -29,11 +29,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.IO;
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Win32;
@@ -54,10 +51,10 @@ namespace MSBuild.Community.Tasks.Sandcastle
         /// </summary>
         public SandcastleToolBase()
         {
-            EnvironmentVariables = new StringDictionary();
+            EnviromentVariables = new StringDictionary();
             SandcastleEnviroment = new SandcastleEnviroment();
 
-            EnvironmentVariables["DXROOT"] = SandcastleEnviroment.SandcastleRoot;
+            EnviromentVariables["DXROOT"] = SandcastleEnviroment.SandcastleRoot;
         }
 
         /// <summary>
@@ -70,7 +67,7 @@ namespace MSBuild.Community.Tasks.Sandcastle
         /// Gets or sets the enviroment variables.
         /// </summary>
         /// <value>The enviroment variables.</value>
-        internal new StringDictionary EnvironmentVariables { get; set; }
+        internal StringDictionary EnviromentVariables { get; set; }
 
         /// <summary>
         /// Gets or sets the sandcastle install root directory.
@@ -85,7 +82,7 @@ namespace MSBuild.Community.Tasks.Sandcastle
             set
             {
                 SandcastleEnviroment = new SandcastleEnviroment(value);
-                EnvironmentVariables["DXROOT"] = value;
+                EnviromentVariables["DXROOT"] = value;
             }
         }
 
@@ -168,22 +165,11 @@ namespace MSBuild.Community.Tasks.Sandcastle
         /// </summary>
         /// <value></value>
         /// <returns>The override value of the PATH environment variable.</returns>
-#if NETCOREAPP
-        protected override Dictionary<string, string> EnvironmentOverride
-#else
         protected override StringDictionary EnvironmentOverride
-#endif
         {
             get
             {
-#if NETCOREAPP
-                return EnvironmentVariables
-                    .OfType<DictionaryEntry>()
-                    .Select(d => new KeyValuePair<string, string>(d.Key as string, d.Value as string))
-                    .ToDictionary();
-#else
-                return EnvironmentVariables;
-#endif
+                return EnviromentVariables;
             }
         }
 

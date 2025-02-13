@@ -293,9 +293,7 @@ namespace MSBuild.Community.Tasks.Tests.Xml
 
         private void assertXml(string expectedValue, string xpath, string message)
         {
-            var asserter = new XPathAsserter(task.MergedXmlDocument, xpath, expectedValue, message);
-
-			Assert.That(asserter.Test(), asserter.Message);
+            Assert.DoAssert(new XPathAsserter(task.MergedXmlDocument, xpath, expectedValue, message));
         }
 
         private XmlNode getNode(string xml, string xpath)
