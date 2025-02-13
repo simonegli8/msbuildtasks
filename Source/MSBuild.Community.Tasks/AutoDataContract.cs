@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using System.Text;
@@ -26,13 +27,13 @@ namespace MSBuild.Community.Tasks {
 		}*/
 
 		public override bool Execute() {
-			var f = new BinaryFormatter();
+			var f = new DataContractSerializer(typeof(Dictionary<string, DateTime>));
 			var stampspath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSBuild.Community.Tasks");
 			if (!Directory.Exists(stampspath)) Directory.CreateDirectory(stampspath);
 			stampspath = Path.Combine(stampspath, "AutoDataContract.data");
 			try {
 				using (var stampsfile = new FileStream(stampspath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					Stamps = (Dictionary<string, DateTime>)f.Deserialize(stampsfile);
+					Stamps = (Dictionary<string, DateTime>)f.ReadObject(stampsfile);
 				}
 			} catch (FileNotFoundException) {
 				Stamps = new Dictionary<string, DateTime>();
@@ -51,7 +52,7 @@ namespace MSBuild.Community.Tasks {
 				Stamps[fullpath] = now;
 			}
 			using (var stampsfile = new FileStream(stampspath, FileMode.Create, FileAccess.Write, FileShare.Write)) {
-				f.Serialize(stampsfile, Stamps);
+				f.WriteObject(stampsfile, Stamps);
 			}
 
 			return res;

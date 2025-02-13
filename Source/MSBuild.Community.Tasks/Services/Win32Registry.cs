@@ -57,8 +57,10 @@ namespace MSBuild.Community.Tasks.Services
                     return Registry.CurrentConfig;
                 case RegistryHive.CurrentUser:
                     return Registry.CurrentUser;
+#if NETFRAMEWORK
                 case RegistryHive.DynData:
                     return Registry.DynData;
+#endif
                 case RegistryHive.LocalMachine:
                     return Registry.LocalMachine;
                 case RegistryHive.PerformanceData:

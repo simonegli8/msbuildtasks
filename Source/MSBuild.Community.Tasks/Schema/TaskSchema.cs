@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-
 namespace MSBuild.Community.Tasks.Schema
 {
     /// <summary>
@@ -46,9 +45,13 @@ namespace MSBuild.Community.Tasks.Schema
     ///     Includes="Microsoft.Build.Commontypes.xsd"/>
     /// ]]></code>
     /// </example>
+#if NETFRAMEWORK
     public class TaskSchema : AppDomainIsolatedTask
-    {
-        private ITaskItem[] assemblies;
+#else
+    public class TaskSchema : Task
+#endif
+	{
+		private ITaskItem[] assemblies;
         private ITaskItem[] schemas;
         private ITaskItem[] taskLists;
         private string outputPath;

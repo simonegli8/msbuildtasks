@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 
 namespace MSBuild.Community.Tasks.SqlServer
 {
@@ -81,7 +82,7 @@ namespace MSBuild.Community.Tasks.SqlServer
 			set { _type.GetProperty("StatementTimeout").SetValue(_instance, value, null); }
 		}
 		
-		public event SqlInfoMessageEventHandler InfoMessage
+		public event Microsoft.Data.SqlClient.SqlInfoMessageEventHandler InfoMessage
 		{
 			add
 			{

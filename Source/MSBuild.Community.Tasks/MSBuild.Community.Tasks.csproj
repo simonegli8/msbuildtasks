@@ -460,4 +460,267 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyOriginatorKeyFile>MSBuild.Community.Tasks.snk</AssemblyOriginatorKeyFile>
+        <TargetFrameworks>net48;net8.0</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <OutputPath>bin\$(Configuration)</OutputPath>
+        <Nullable>disable</Nullable>
+        <LangVersion>13</LangVersion>
+        <PublishDir>..\..\Build\$(Configuration)\$(TargetFramework)</PublishDir>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugType>portable</DebugType>
+        <DocumentationFile>bin\$(Configuration)\MSBuild.Community.Tasks.xml</DocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>portable</DebugType>
+        <DefineConstants />
+        <DocumentationFile>..\..\Build\MSBuild.Community.Tasks.xml</DocumentationFile>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
+        <PackageReference Include="FSharp.Compiler.CodeDom" Version="1.0.0.1" />
+        <PackageReference Include="autorest" Version="0.16.0" />
+        <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+        <PackageReference Include="RestSharp" Version="112.1.0" />
+        <PackageReference Include="Microsoft.Web.Administration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+        <PackageReference Include="MissingLinq.Linq2Management" Version="1.0.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework) == 'net8.0'">
+        <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+        <PackageReference Include="System.DirectoryServices" Version="9.0.1" />
+        <PackageReference Include="System.Management" Version="9.0.1" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.1" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework) == 'net48'">
+        <Reference Include="Microsoft.Build.Framework" />
+        <Reference Include="Microsoft.Build.Utilities.v4.0" />
+        <!--<Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />-->
+        <Reference Include="Microsoft.CSharp" />
+        <!--<Reference Include="Microsoft.Web.Infrastructure">
+            <HintPath>..\Lib\Microsoft.Web.Infrastructure.dll</HintPath>
+        </Reference>-->
+        <Reference Include="System.DirectoryServices" />
+        <Reference Include="System.Management" />
+        <Reference Include="System.ServiceProcess" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="ProxyGenerator">
+            <HintPath>..\Lib\ProxyGenerator.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.Helpers">
+            <HintPath>..\Lib\System.Web.Helpers.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+            <HintPath>..\Lib\System.Web.Mvc.dll</HintPath>
+            <SpecificVersion>False</SpecificVersion>
+        </Reference>
+        <Reference Include="System.Web.Razor">
+            <HintPath>..\Lib\System.Web.Razor.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages">
+            <HintPath>..\Lib\System.Web.WebPages.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages.Deployment">
+            <HintPath>..\Lib\System.Web.WebPages.Deployment.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.WebPages.Razor">
+            <HintPath>..\Lib\System.Web.WebPages.Razor.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\GlobalAssemblyInfo.cs" Link="GlobalAssemblyInfo.cs" />
+        <Content Include="Lib\AutoRest\AutoRest.Core.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.exe">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.CSharp.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Extensions.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Java.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.NodeJS.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Python.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Azure.Ruby.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.AzureResourceSchema.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.CSharp.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Extensions.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Java.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.NodeJS.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Python.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Generator.Ruby.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Modeler.CompositeSwagger.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\AutoRest.Modeler.Swagger.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Lib\AutoRest\Newtonsoft.Json.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="MSBuild.Community.Tasks.Custom.Targets">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Pdb2mdb\.gitattributes" />
+        <Content Include="Lib\AutoRest\AutoRest.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <EmbeddedResource Include="CARoot.cer" />
+        <EmbeddedResource Include="CARoot.pvk" />
+        <None Include="Mks.proj" />
+        <None Include="MSBuild.Community.Tasks.snk" />
+        <None Include="AdditionalDocumentation.xml" />
+        <EmbeddedResource Include="Sandcastle\hana.config" />
+        <EmbeddedResource Include="Sandcastle\prototype.config" />
+        <EmbeddedResource Include="Sandcastle\vs2005.config" />
+        <Content Include="FtpUpload\SomeDevNotesOnFtpUpload.txt" />
+        <Content Include="MSBuild.Community.Tasks.Targets">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="NUnitReport.xsl">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Include="Pdb2mdb\ChangeLog" />
+        <None Include="Pdb2mdb\LICENSE" />
+        <None Include="Pdb2mdb\Makefile" />
+        <None Include="Pdb2mdb\pdb2mdb.exe.sources" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <SubType>Designer</SubType>
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="SourceSafe\VssAdd.cs" />
+        <Compile Remove="SourceSafe\VssBase.cs" />
+        <Compile Remove="SourceSafe\VssCheckin.cs" />
+        <Compile Remove="SourceSafe\VssCheckout.cs" />
+        <Compile Remove="SourceSafe\VssClean.cs" />
+        <Compile Remove="SourceSafe\VssDiff.cs" />
+        <Compile Remove="SourceSafe\VssGet.cs" />
+        <Compile Remove="SourceSafe\VssHistory.cs" />
+        <Compile Remove="SourceSafe\VssLabel.cs" />
+        <Compile Remove="SourceSafe\VssRecursiveBase.cs" />
+        <Compile Remove="SourceSafe\VssUndoCheckout.cs" />
+        <Compile Remove="Subversion\SvnLock.cs" />
+        <Compile Remove="Subversion\SvnUnlock.cs" />
+        <Compile Remove="Tfs\IServer.cs" />
+        <Compile Remove="Tfs\TeamFoundationServer.cs" />
+        <Compile Remove="Tfs\TeamFoundationServerException.cs" />
+        <Compile Remove="Tfs\TfsVersion.cs" />
+        <Compile Remove="Vault\VaultAddFile.cs" />
+        <Compile Remove="Vault\VaultBase.cs" />
+        <Compile Remove="Vault\VaultCheckin.cs" />
+        <Compile Remove="Vault\VaultCheckout.cs" />
+        <Compile Remove="Vault\VaultGetFile.cs" />
+        <Compile Remove="Vault\VaultUndoCheckout.cs" />
+        <Compile Remove="Tfs\Proxies\Changeset.cs" />
+        <Compile Remove="Tfs\Proxies\RecursionType.cs" />
+        <Compile Remove="Tfs\Proxies\VersionControlServer.cs" />
+        <Compile Remove="Tfs\Proxies\VersionSpec.cs" />
+        <Compile Remove="Tfs\Proxies\Workspace.cs" />
+        <Compile Remove="Tfs\Proxies\WorkspaceInfo.cs" />
+        <Compile Remove="Tfs\Proxies\WorkspaceVersionSpec.cs" />
+        <Compile Remove="Tfs\Proxies\Workstation.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestConfiguration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestOrder.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\TestPet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\CategoryTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\InlineResponse200Tests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\Model200ResponseTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\ModelReturnTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\NameTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\OrderTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\PetApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\PetTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\SpecialModelNameTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\StoreApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\TagTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\UserApiTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient.Test\UserTests.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\PetApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\StoreApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Api\UserApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiException.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\ApiResponse.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Client\Configuration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Animal.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Cat.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Category.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Dog.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\InlineResponse200.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Model200Response.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\ModelReturn.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Name.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\ObjectReturn.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Order.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Pet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\SpecialModelName.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Tag.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\Task.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Model\User.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp\SwaggerClientTest\Lib\SwaggerClient\src\main\csharp\IO\Swagger\Properties\AssemblyInfo.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\PetApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\StoreApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Api\UserApi.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\ApiClient.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\ApiException.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Client\Configuration.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Category.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Order.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Pet.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\Tag.cs" />
+        <Compile Remove="swagger-codegen-2.1.6\samples\client\petstore\csharp-dotnet2\SwaggerClientTest\Lib\SwaggerClient\src\main\CsharpDotNet2\IO\Swagger\Model\User.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Properties\PublishProfiles\" />
+    </ItemGroup>
+
+    <Target Name="CopyTargetsFile" AfterTargets="Build">
+        <Copy SourceFiles="MSBuild.Community.Tasks.Targets" DestinationFolder="$(PublishDir)\..\" />
+    </Target>
 </Project>
