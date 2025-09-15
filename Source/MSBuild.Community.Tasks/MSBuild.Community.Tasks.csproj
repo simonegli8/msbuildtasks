@@ -25,7 +25,7 @@
         <PackageReference Include="Mono.Cecil" Version="0.11.6" />
         <PackageReference Include="RestSharp" Version="112.1.0" />
         <PackageReference Include="Microsoft.Web.Administration" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
         <PackageReference Include="MissingLinq.Linq2Management" Version="1.0.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
