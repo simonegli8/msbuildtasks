@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <AssemblyOriginatorKeyFile>MSBuild.Community.Tasks.snk</AssemblyOriginatorKeyFile>
-        <TargetFrameworks>net48;net10.0</TargetFrameworks>
+        <TargetFrameworks>net48;$(netlatest)</TargetFrameworks>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <OutputPath>bin\$(Configuration)</OutputPath>
         <Nullable>disable</Nullable>
@@ -29,7 +29,7 @@
         <PackageReference Include="MissingLinq.Linq2Management" Version="1.0.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
-    <ItemGroup Condition="$(TargetFramework) == 'net10.0'">
+    <ItemGroup Condition="$(TargetFramework) == '$(netlatest)'">
         <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
